@@ -26,8 +26,30 @@ A single static binary with three subcommands:
 milestoned-plan-dag <validate|resolve|render> <plan.yaml>
 ```
 
-> Status: scaffold. The subcommands are stubs in this milestone and are
-> implemented in subsequent milestones (see `implementation-plan.md`).
+All three subcommands are implemented: `validate` runs shape + semantic DAG
+checks, `resolve` emits the machine-readable YAML projection (authoritative
+`depends_on` edges + a deterministic topological order), and `render` emits a
+read-only human markdown view.
+
+## Authoring a plan
+
+[`skills/plan-author/SKILL.md`](./skills/plan-author/SKILL.md) is the
+agent-agnostic authoring skill: it documents the full YAML grammar (milestone
+identity, the `depends-on` DAG and its implicit-chain fallback, the mandatory
+`check`/`criteria`/`paths` contract and its conscious escapes, checkbox steps)
+and the `validate` → `resolve`/`render` CLI workflow. See
+[`skills/plan-author/example.yaml`](./skills/plan-author/example.yaml) for a
+worked, validating branching plan.
+
+Point an editor's YAML language server at the published JSON Schema for
+inline completion and validation:
+
+```yaml
+# yaml-language-server: $schema=./schema/plan.schema.json
+```
+
+(adjust the relative path to wherever `schema/plan.schema.json` sits from your
+plan file).
 
 ## Repository shape
 

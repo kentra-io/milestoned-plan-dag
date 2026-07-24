@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../schema/plan.schema.json
+#
+# A small worked example exercising: explicit slugs, an implicit-chain edge
+# (milestone 2 declares no depends-on, so it inherits an edge on milestone 1),
+# a branching + merging DAG, both contract "conscious escapes" (check: none
+# and paths: []), and a mix of done/not-done checkbox steps.
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: scaffold
+    goal: Stand up the widget module scaffold
+    deliverables: A Go package skeleton with a build that passes.
+    contract:
+      check: go build ./...
+      criteria: The module builds clean with no widget code yet.
+      paths:
+        - go.mod
+        - cmd/**
+    steps:
+      - "[x] go mod init"
+      - "[x] add the CLI dispatch skeleton"
+
+  - number: 2
+    slug: design-note
+    goal: Record the widget's trade-off decision
+    deliverables: A short design note explaining the chosen approach.
+    contract:
+      # No automated proof for a design note — a conscious escape, not a
+      # default. Declares no depends-on, so it implicitly follows milestone 1
+      # (scaffold) in document order.
+      check: none
+      criteria: The note explains the trade-off clearly enough for a reviewer to judge.
+      paths:
+        - docs/**
+    steps:
+      - "[ ] write the design note"
+
+  - number: 3
+    slug: widget-api
+    goal: Implement the widget API on top of the scaffold
+    deliverables:
+      create:
+        - internal/widget/api.go
+      test:
+        - internal/widget/api_test.go
+    contract:
+      check: go test ./internal/widget/...
+      criteria: The widget API is implemented and its tests pass.
+      paths:
+        - internal/widget/**
+    depends-on:
+      - scaffold
+    steps:
+      - "[ ] define the API surface"
+      - "[ ] implement it"
+
+  - number: 4
+    slug: review-gate
+    goal: Confirm the widget module is ready to ship, with no further changes
+    deliverables: No files change; this milestone only runs a review check.
+    contract:
+      check: test -f docs/design.md && test -f internal/widget/api.go
+      criteria: Both the design note and the widget API exist before shipping.
+      # Empty write-set — a conscious escape meaning this milestone's diff
+      # must be empty; it only verifies work done by earlier milestones.
+      paths: []
+    depends-on:
+      - design-note
+      - widget-api
+    steps:
+      - "[ ] confirm the design note and the widget API are both in place"
