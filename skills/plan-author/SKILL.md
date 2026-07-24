@@ -14,6 +14,22 @@ This skill documents the grammar and the CLI workflow for authoring one. It does
 not assume or name any particular agent runtime — the plan format and CLI are
 agent-agnostic.
 
+## Scope: one plan = one git repository
+
+A plan describes work in **a single repository**. Every `contract.paths` glob is
+relative to one project root, so the plan has exactly one root and every
+milestone's write-set resolves against it.
+
+**Multi-repo and multi-module (separate git roots) projects are not supported.**
+Do not write a plan whose milestones deliver into different repositories, and do
+not path-prefix milestones to reach a sibling repo or a nested checkout — there
+is no way to express which root a path belongs to, and executors (which commit
+per milestone at the single root) will silently commit nothing for the
+milestones that point elsewhere. Write one plan per repository instead.
+
+The same rule covers a plan whose deliverable is a **new** repository: create the
+repo first, then write the plan inside it.
+
 ## Top-level shape
 
 ```yaml
@@ -109,7 +125,8 @@ contract:
   meaning this milestone's diff must be empty (a verify-only or read-only
   milestone). A single **`**`** entry is a conscious escape meaning the
   write-set is deliberately unconfined. Ordinary entries are directory globs,
-  e.g. `internal/foo/**`.
+  e.g. `internal/foo/**`, always relative to the plan's single project root
+  (see "Scope" above — they cannot reach another repository).
 
   Two *independent* milestones (no dependency path between them, so a future
   concurrent executor could run them together) whose `paths` globs could match
