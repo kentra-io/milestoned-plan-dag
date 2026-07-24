@@ -1,0 +1,14 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: plain
+    goal: A milestone with prose deliverables and no per-step file refs
+    deliverables: A single prose sentence describing what ships, nothing structured.
+    contract:
+      check: go test ./...
+      criteria: The plain criteria is a single string, not a test-case list.
+      paths:
+        - internal/**
+    steps:
+      - "[ ] do the first thing"
+      - "[x] do the second thing"

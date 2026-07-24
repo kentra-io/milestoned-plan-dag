@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../schema/plan.schema.json
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: scaffold
+    goal: Stand up the repo scaffold
+    deliverables: A Go module with a CLI skeleton and CI.
+    contract:
+      check: go build ./...
+      criteria: The module builds clean and the CLI dispatches to stubs.
+      paths:
+        - go.mod
+        - cmd/**
+    steps:
+      - "[x] go mod init"
+      - "[x] add the CLI dispatch skeleton"
+  - number: 2
+    slug: model
+    goal: Define the plan model and loader
+    deliverables: The typed model, the YAML loader, and the JSON Schema.
+    contract:
+      check: go test ./...
+      criteria: The model round-trips and the schema shape-validates fixtures.
+      paths:
+        - internal/**
+    steps:
+      - "[x] define the types"
+      - "[ ] write the loader"
+  - number: 3
+    slug: validate
+    goal: Implement the validate command
+    deliverables: The semantic DAG validator wired into the CLI.
+    contract:
+      check: go test ./internal/validate/...
+      criteria: Cycles, dangling edges, and duplicates are rejected by name.
+      paths:
+        - internal/validate/**
+    steps:
+      - "[ ] resolve the edge set"
+      - "[ ] reject cycles"

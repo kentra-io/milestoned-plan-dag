@@ -1,0 +1,24 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: parse-dag
+    goal: First milestone claiming the parse-dag slug
+    deliverables: The first of two milestones sharing a slug.
+    contract:
+      check: none
+      criteria: First is done.
+      paths:
+        - internal/first/**
+    steps:
+      - "[ ] do the first thing"
+  - number: 2
+    slug: parse-dag
+    goal: Second milestone claiming the same parse-dag slug
+    deliverables: The second of two milestones sharing a slug.
+    contract:
+      check: none
+      criteria: Second is done.
+      paths:
+        - internal/second/**
+    steps:
+      - "[ ] do the second thing"

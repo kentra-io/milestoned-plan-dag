@@ -1,0 +1,13 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: unverifiable
+    goal: A milestone whose outcome has no automated proof
+    deliverables: A design note whose value a judge assesses by reading it.
+    contract:
+      check: none
+      criteria: The design note explains the trade-off clearly enough to judge.
+      paths:
+        - docs/**
+    steps:
+      - "[ ] write the design note"

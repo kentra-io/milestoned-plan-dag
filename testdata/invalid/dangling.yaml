@@ -1,0 +1,26 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: foundation
+    goal: The foundation milestone
+    deliverables: A real milestone that exists.
+    contract:
+      check: none
+      criteria: Foundation is in place.
+      paths:
+        - internal/foundation/**
+    steps:
+      - "[ ] lay the foundation"
+  - number: 2
+    slug: builder
+    goal: A milestone with a dangling dependency
+    deliverables: A milestone that references a slug no milestone defines.
+    contract:
+      check: none
+      criteria: Builder is done.
+      paths:
+        - internal/builder/**
+    depends-on:
+      - does-not-exist
+    steps:
+      - "[ ] build the thing"

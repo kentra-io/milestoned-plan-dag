@@ -1,0 +1,24 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: alpha
+    goal: First milestone with number 1
+    deliverables: The first of two milestones sharing a number.
+    contract:
+      check: none
+      criteria: Alpha is done.
+      paths:
+        - internal/alpha/**
+    steps:
+      - "[ ] do alpha"
+  - number: 1
+    slug: beta
+    goal: Second milestone reusing number 1
+    deliverables: The second of two milestones sharing a number.
+    contract:
+      check: none
+      criteria: Beta is done.
+      paths:
+        - internal/beta/**
+    steps:
+      - "[ ] do beta"

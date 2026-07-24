@@ -1,0 +1,12 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    goal: Define the Plan Model!
+    deliverables: The typed model, with a slug derived from the goal.
+    contract:
+      check: go test ./internal/plan/...
+      criteria: The loader fills in a kebab slug when none is authored.
+      paths:
+        - internal/plan/**
+    steps:
+      - "[ ] define the model"

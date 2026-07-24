@@ -1,0 +1,13 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: blank-criteria
+    goal: A milestone whose contract has empty criteria
+    deliverables: A milestone with a contract but no pass/fail text.
+    contract:
+      check: go test ./...
+      criteria: ""
+      paths:
+        - internal/**
+    steps:
+      - "[ ] do a thing a judge cannot evaluate"

@@ -1,0 +1,33 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: rich-milestone
+    goal: Exercise every optional structured detail slot
+    deliverables:
+      create:
+        - internal/plan/types.go
+        - internal/plan/load.go
+      modify:
+        - go.mod
+      test:
+        - internal/plan/load_test.go
+    contract:
+      check: go test ./internal/plan/...
+      criteria:
+        - name: schema version round-trips
+          given: a plan authored against the initial format
+          when: it is loaded
+          then: it declares schemaVersion 0.1.0
+        - name: steps carry checkbox state
+          given: a milestone with checkbox steps
+          when: it is loaded
+          then: each step's done flag reflects its [ ] or [x] marker
+      paths:
+        - internal/plan/**
+    steps:
+      - text: "[x] define the model"
+        files:
+          - internal/plan/types.go
+      - text: "[ ] write the loader"
+        files:
+          - internal/plan/load.go

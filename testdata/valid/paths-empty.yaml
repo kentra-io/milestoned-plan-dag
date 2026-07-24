@@ -1,0 +1,12 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: verify-only
+    goal: A verify-only milestone that must produce no file changes
+    deliverables: No files change; this milestone only runs a check.
+    contract:
+      check: go test ./...
+      criteria: The existing suite passes with no diff introduced.
+      paths: []
+    steps:
+      - "[ ] run the suite and confirm a clean tree"

@@ -1,0 +1,28 @@
+schemaVersion: 0.1.0
+milestones:
+  - number: 1
+    slug: a
+    goal: Milestone a depends on b
+    deliverables: The first half of a two-node cycle.
+    contract:
+      check: none
+      criteria: a is done.
+      paths:
+        - internal/a/**
+    depends-on:
+      - b
+    steps:
+      - "[ ] do a"
+  - number: 2
+    slug: b
+    goal: Milestone b depends on a
+    deliverables: The second half of a two-node cycle.
+    contract:
+      check: none
+      criteria: b is done.
+      paths:
+        - internal/b/**
+    depends-on:
+      - a
+    steps:
+      - "[ ] do b"
