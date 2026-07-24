@@ -1,9 +1,7 @@
 // Command milestoned-plan-dag is the CLI entrypoint for the machine-first YAML
 // plan primitive: a plan is a DAG of verifiable milestones.
 //
-// It dispatches to three subcommands — validate, render, and resolve. In this
-// scaffold milestone each subcommand is a stub returning "not implemented"; the
-// behavior is filled in by subsequent milestones (see implementation-plan.md).
+// It dispatches to three subcommands — validate, resolve, and render.
 package main
 
 import (
@@ -51,16 +49,4 @@ func run(args []string) int {
 		fmt.Fprintf(os.Stderr, "milestoned-plan-dag: unknown command %q\n\n%s", args[0], usage)
 		return 2
 	}
-}
-
-// resolveCmd is the stub handler for `resolve`; implemented in a later milestone.
-func resolveCmd(args []string) int {
-	fmt.Fprintln(os.Stderr, "resolve: not implemented")
-	return 1
-}
-
-// renderCmd is the stub handler for `render`; implemented in a later milestone.
-func renderCmd(args []string) int {
-	fmt.Fprintln(os.Stderr, "render: not implemented")
-	return 1
 }

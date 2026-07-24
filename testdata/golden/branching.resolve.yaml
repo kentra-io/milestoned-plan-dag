@@ -1,0 +1,53 @@
+schemaVersion: 0.1.0
+order:
+    - a
+    - b
+    - c
+milestones:
+    - number: 1
+      slug: a
+      goal: Foundation
+      deliverables:
+        prose: The shared foundation both branches build on.
+      contract:
+        check: none
+        criteria:
+            text: Foundation is in place.
+        paths:
+            - internal/foundation/**
+      steps:
+        - text: lay the foundation
+          done: true
+      depends_on: []
+    - number: 2
+      slug: b
+      goal: First branch
+      deliverables:
+        prose: The first independent branch.
+      contract:
+        check: go test ./internal/b/...
+        criteria:
+            text: Branch b works on top of the foundation.
+        paths:
+            - internal/b/**
+      steps:
+        - text: build branch b
+          done: false
+      depends_on:
+        - a
+    - number: 3
+      slug: c
+      goal: Second branch
+      deliverables:
+        prose: The second independent branch.
+      contract:
+        check: go test ./internal/c/...
+        criteria:
+            text: Branch c works on top of the foundation.
+        paths:
+            - internal/c/**
+      steps:
+        - text: build branch c
+          done: false
+      depends_on:
+        - a

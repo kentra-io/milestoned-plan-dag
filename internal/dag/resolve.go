@@ -22,6 +22,9 @@ type Graph struct {
 	// Deps maps a milestone slug to the slugs it depends on (its resolved
 	// incoming edges, explicit ∪ implicit).
 	Deps map[string][]string
+	// Numbers maps a milestone slug to its ordinal `number`, used as the
+	// deterministic tie-break when linearizing independent milestones.
+	Numbers map[string]int
 	// defined is the set of slugs a milestone in the plan actually declares,
 	// used to ignore dangling references during traversal.
 	defined map[string]struct{}
@@ -34,11 +37,13 @@ type Graph struct {
 func Build(p *plan.Plan) *Graph {
 	g := &Graph{
 		Deps:    make(map[string][]string, len(p.Milestones)),
+		Numbers: make(map[string]int, len(p.Milestones)),
 		defined: make(map[string]struct{}, len(p.Milestones)),
 	}
 	for _, m := range p.Milestones {
 		g.Slugs = append(g.Slugs, m.Slug)
 		g.defined[m.Slug] = struct{}{}
+		g.Numbers[m.Slug] = m.Number
 	}
 	for i, m := range p.Milestones {
 		switch {
