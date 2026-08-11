@@ -5,6 +5,10 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
+
+	"milestoned-plan-dag/internal/validate"
 )
 
 // skillPath is the authoring skill this CLI ships. It is the one document
@@ -83,4 +87,49 @@ func commandNames() []string {
 		names = append(names, n)
 	}
 	return names
+}
+
+// TestExampleMeetsTheBar holds the worked example to the standard the skill
+// teaches: it is the artifact agents copy, so a stale example is a quality
+// regression the prose cannot catch.
+func TestExampleMeetsTheBar(t *testing.T) {
+	data, err := os.ReadFile("../../skills/plan-author/example.yaml")
+	if err != nil {
+		t.Fatalf("reading example.yaml: %v", err)
+	}
+
+	res, err := validate.Validate(data)
+	if err != nil {
+		t.Fatalf("example.yaml failed to parse: %v", err)
+	}
+	if !res.OK() {
+		t.Fatalf("example.yaml is invalid: %v", res.Errors)
+	}
+
+	var doc struct {
+		Milestones []struct {
+			Slug     string `yaml:"slug"`
+			Contract struct {
+				Check    string      `yaml:"check"`
+				Criteria interface{} `yaml:"criteria"`
+			} `yaml:"contract"`
+		} `yaml:"milestones"`
+	}
+	if err := yaml.Unmarshal(data, &doc); err != nil {
+		t.Fatalf("parsing example.yaml: %v", err)
+	}
+
+	named := 0
+	for _, m := range doc.Milestones {
+		if list, ok := m.Contract.Criteria.([]interface{}); ok && len(list) > 0 {
+			named++
+		}
+		if m.Contract.Check == "" {
+			t.Errorf("milestone %q: empty check", m.Slug)
+		}
+	}
+	if named < 2 {
+		t.Errorf("example.yaml demonstrates structured named criteria on %d milestone(s), want at least 2 — "+
+			"the example must show the shape the skill asks for", named)
+	}
 }
