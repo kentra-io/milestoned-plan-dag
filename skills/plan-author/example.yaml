@@ -14,6 +14,8 @@ milestones:
       create:
         - go.mod
         - cmd/widget/main.go   # CLI entrypoint; dispatches to internal/widget
+      test:
+        - cmd/widget/main_test.go
     contract:
       check: go test ./...
       criteria:
