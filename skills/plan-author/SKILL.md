@@ -116,8 +116,12 @@ rejected.
 
 ```yaml
 contract:
-  check: go test ./internal/foo/...
-  criteria: The new package's tests pass and cover the branch case.
+  check: go test ./...
+  criteria:
+    - name: internal/foo/branch_test.go::TestHandlesEmptyInput
+      given: an empty input
+      when: the new branch case runs
+      then: it returns the zero value with no error
   paths:
     - internal/foo/**
 ```
