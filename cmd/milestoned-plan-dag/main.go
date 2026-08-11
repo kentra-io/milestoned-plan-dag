@@ -27,6 +27,15 @@ func main() {
 	os.Exit(run(os.Args[1:]))
 }
 
+// commands is the CLI's subcommand set, as data rather than a switch, so
+// tests (and the usage text) can enumerate it. Adding a subcommand here is
+// the single edit that makes it dispatchable and drift-checkable.
+var commands = map[string]func([]string) int{
+	"validate": validateCmd,
+	"resolve":  resolveCmd,
+	"render":   renderCmd,
+}
+
 // run dispatches on the first argument and returns a process exit code. It is
 // factored out of main so it can be exercised without terminating the process.
 func run(args []string) int {
@@ -39,14 +48,12 @@ func run(args []string) int {
 	case "-h", "--help", "help":
 		fmt.Fprint(os.Stdout, usage)
 		return 0
-	case "validate":
-		return validateCmd(args[1:])
-	case "resolve":
-		return resolveCmd(args[1:])
-	case "render":
-		return renderCmd(args[1:])
-	default:
+	}
+
+	cmd, ok := commands[args[0]]
+	if !ok {
 		fmt.Fprintf(os.Stderr, "milestoned-plan-dag: unknown command %q\n\n%s", args[0], usage)
 		return 2
 	}
+	return cmd(args[1:])
 }
