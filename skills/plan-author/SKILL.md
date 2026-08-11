@@ -30,6 +30,24 @@ milestones that point elsewhere. Write one plan per repository instead.
 The same rule covers a plan whose deliverable is a **new** repository: create the
 repo first, then write the plan inside it.
 
+## Self-contained is the bar
+
+A milestone is read **alone** — by an implementer who has this repository, this
+one milestone, and nothing else. It has to carry enough to start work without
+opening another document or asking a question.
+
+- **Names, not references.** `deliverables` lists the file paths this milestone
+  produces and, for each, the class or function it introduces and its one-line
+  responsibility. "As described in the design doc" is not a deliverable.
+- **Criteria written out.** Each criterion states its `given`/`when`/`then` in
+  full and `name`s the test that proves it. A criterion that points elsewhere
+  for its detail is not self-contained.
+- **Everything else is prose, kept short.** Precision lives in the names and the
+  criteria; the surrounding text only has to be clear enough to act on.
+
+Test it by reading one milestone with the rest of the plan covered. If you would
+have to ask a question before starting, that milestone is not done.
+
 ## Top-level shape
 
 ```yaml
@@ -104,22 +122,32 @@ contract:
     - internal/foo/**
 ```
 
-- **`check`** — a single executable command that proves the milestone's work,
-  OR the sentinel **`none`** for a milestone whose outcome genuinely has no
-  automated proof (e.g. a design note or a decision record) — a *conscious*
-  escape, not a default. `check` must not be blank.
-- **`criteria`** — the pass/fail statement a verifier judges the check (or the
-  unverifiable work, when `check: none`) against. It must be non-empty. It may
-  instead be a structured list of test cases, each with `then` required and
-  `name` / `given` / `when` optional:
+- **`check`** — the command that proves the milestone did not break the
+  repository: normally **the project's standard validation command**, the one a
+  maintainer runs before pushing (`./gradlew clean test`, `go test ./...`,
+  `npm test`). The same command on every milestone is the expected shape, not a
+  smell — it proves nothing regressed *and* that this milestone's new tests ran
+  inside the real suite rather than under an isolating filter. Per-milestone
+  specificity belongs in `criteria`, which names the tests. The sentinel
+  **`none`** is for a milestone whose outcome genuinely has no automated proof
+  (a design note, a decision record) — a *conscious* escape, not a default.
+  `check` must not be blank.
+- **`criteria`** — the pass/fail statement a verifier grades the milestone
+  against. Prefer the structured list: one entry per behaviour this milestone
+  delivers, `then` required, `name` carrying the **test identity** (the file and
+  test name that proves it), `given`/`when` written out in full:
 
   ```yaml
   criteria:
-    - name: the loader accepts a minimal plan
-      given: a plan with one milestone and no depends-on
+    - name: internal/plan/load_test.go::TestLoadRejectsDuplicateSlug
+      given: a plan with two milestones sharing a slug
       when: it is loaded
-      then: no error is returned
+      then: loading fails and names the duplicated slug
   ```
+
+  A bare string is allowed and stays valid, but it gives the verifier nothing to
+  check the milestone *did* anything — reach for it only where there is genuinely
+  no test to name. `criteria` must be non-empty.
 - **`paths`** — the allowed write-set for this milestone, as a list of globs.
   It is required but may be the **empty list `paths: []`** — a conscious escape
   meaning this milestone's diff must be empty (a verify-only or read-only
