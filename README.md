@@ -11,6 +11,22 @@ sequential chain (the degenerate DAG).
 The format is authored in YAML and validated against a published JSON Schema; the
 CLI is authoritative for the semantic DAG rules a JSON Schema cannot express.
 
+## Install
+
+```sh
+brew install kentra-io/tap/milestoned-plan-dag
+```
+
+Or `go install github.com/kentra-io/milestoned-plan-dag/cmd/milestoned-plan-dag@latest`,
+or grab a per-platform archive from the
+[releases page](https://github.com/kentra-io/milestoned-plan-dag/releases).
+Full install and release documentation: [`docs/releasing.md`](./docs/releasing.md).
+
+> **Using this with [`spec-lifecycle`](https://github.com/kentra-io/spec-lifecycle)?**
+> `lifecycle` shells out to this binary for its plan-stage gate and archive
+> step-completion gate, resolving it by the exact name `milestoned-plan-dag` on
+> `PATH`. Install both, or neither.
+
 ## CLI
 
 A single static binary with three subcommands:

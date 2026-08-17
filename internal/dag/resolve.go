@@ -12,7 +12,7 @@
 // milestones (changing their numbers) does not change any edge.
 package dag
 
-import "milestoned-plan-dag/internal/plan"
+import "github.com/kentra-io/milestoned-plan-dag/internal/plan"
 
 // Graph is a resolved milestone dependency graph. An edge "s depends on d"
 // (d must complete before s) is recorded as d ∈ Deps[s].

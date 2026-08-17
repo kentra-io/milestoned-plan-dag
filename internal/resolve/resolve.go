@@ -11,8 +11,8 @@
 package resolve
 
 import (
-	"milestoned-plan-dag/internal/dag"
-	"milestoned-plan-dag/internal/plan"
+	"github.com/kentra-io/milestoned-plan-dag/internal/dag"
+	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
 
 	"gopkg.in/yaml.v3"
 )

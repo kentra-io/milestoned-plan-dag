@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"milestoned-plan-dag/internal/plan"
+	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
 )
 
 func loadFixture(t *testing.T, path string) *plan.Plan {

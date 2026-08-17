@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"milestoned-plan-dag/internal/validate"
+	"github.com/kentra-io/milestoned-plan-dag/internal/validate"
 )
 
 // validateCmd runs shape + semantic validation on a plan file. It prints any

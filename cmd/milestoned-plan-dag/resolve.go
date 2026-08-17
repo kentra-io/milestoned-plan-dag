@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"milestoned-plan-dag/internal/plan"
-	"milestoned-plan-dag/internal/resolve"
-	"milestoned-plan-dag/internal/validate"
+	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
+	"github.com/kentra-io/milestoned-plan-dag/internal/resolve"
+	"github.com/kentra-io/milestoned-plan-dag/internal/validate"
 )
 
 // resolveCmd runs `resolve <plan.yaml>`: it validates the plan, then emits

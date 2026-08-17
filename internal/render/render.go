@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"strings"
 
-	"milestoned-plan-dag/internal/plan"
+	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
 )
 
 // Render produces the full markdown document for a plan: one "## Milestone
