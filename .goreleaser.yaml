@@ -1,0 +1,125 @@
+# GoReleaser v2 configuration for the `milestoned-plan-dag` CLI.
+# Schema: https://goreleaser.com/customization/
+#
+# Release flow (see docs/releasing.md): push a `vX.Y.Z` tag -> the release
+# workflow (.github/workflows/release.yml) runs `goreleaser release`, which
+# builds all targets, publishes a GitHub Release with archives + checksums,
+# and pushes a Homebrew cask to kentra-io/homebrew-tap (the third cask in
+# that tap, alongside `constitution` and `lifecycle`).
+#
+# Local dry run (no publish, builds every target):
+#   goreleaser release --snapshot --clean --skip=publish
+version: 2
+
+# project_name drives the binary name, archive names, and cask name. Unlike
+# the sibling `spec-lifecycle` repo (whose binary is `lifecycle`, not the repo
+# name), this primitive's repo name and binary name are already identical —
+# and the name is load-bearing: spec-lifecycle resolves this binary by looking
+# up exactly "milestoned-plan-dag" on PATH (its internal/plandag.BinName).
+# Do not shorten it here without changing that seam.
+project_name: milestoned-plan-dag
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - id: milestoned-plan-dag
+    main: ./cmd/milestoned-plan-dag
+    binary: milestoned-plan-dag
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    # -trimpath strips local filesystem paths from the binary for reproducible,
+    # leak-free builds.
+    flags:
+      - -trimpath
+    # -s -w drop the symbol table and DWARF debug info (smaller binary). The
+    # -X flags inject version metadata into package main's build-time vars
+    # (cmd/milestoned-plan-dag/version.go) so a released binary's `--version`
+    # reports its tag, commit, and build date instead of falling back to
+    # ReadBuildInfo. spec-lifecycle parses that output — see version.go.
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+      - -X main.commit={{ .Commit }}
+      - -X main.date={{ .CommitDate }}
+    # Pin archive/binary mtimes to the commit timestamp for reproducible builds.
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: milestoned-plan-dag
+    ids:
+      - milestoned-plan-dag
+    # Produces e.g. milestoned-plan-dag_0.1.0_linux_amd64.tar.gz — the asset
+    # name the claudebox install snippet (docs/releasing.md) depends on.
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - tar.gz
+    # Windows users expect .zip.
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    files:
+      - LICENSE
+      - README.md
+      # The published JSON Schema travels with the binary: a consumer pointing
+      # an editor's YAML language server at it should not need to clone the repo.
+      - schema/*.json
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+homebrew_casks:
+  - name: milestoned-plan-dag
+    binaries:
+      - milestoned-plan-dag
+    homepage: "https://github.com/kentra-io/milestoned-plan-dag"
+    description: "Machine-first YAML plan format — a DAG of verifiable milestones, with a validating single-binary CLI"
+    license: "MIT"
+    # The cask is published to the kentra-io/homebrew-tap repo. GoReleaser needs
+    # a cross-repo token here: the default GITHUB_TOKEN is scoped to THIS repo
+    # only and cannot push to the tap. HOMEBREW_TAP_TOKEN is the org-level
+    # secret the sibling primitives already use, wired through in
+    # .github/workflows/release.yml.
+    repository:
+      owner: kentra-io
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    # Prerelease tags (e.g. v0.1.0-rc1) must NOT overwrite the stable cask in
+    # the tap. "auto" skips the cask upload whenever the version is a
+    # prerelease (SemVer with a hyphen).
+    skip_upload: "auto"
+    # The binary is not code-signed / notarized, so macOS Gatekeeper
+    # quarantines it. Strip the quarantine attribute on install so
+    # `milestoned-plan-dag` runs without a manual trip through System Settings.
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/milestoned-plan-dag"]
+          end
+
+release:
+  # Draft/prerelease handling: publish a normal release; mark prereleases
+  # automatically from tags like v1.2.3-rc1.
+  prerelease: auto
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "Merge pull request"

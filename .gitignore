@@ -1,0 +1,19 @@
+# Build output. A local `go build -o milestoned-plan-dag ./cmd/milestoned-plan-dag`
+# (or its Windows .exe form) drops a binary at the repo root; ignore both.
+# /dist/ is where GoReleaser writes snapshot and release artifacts.
+/milestoned-plan-dag
+/milestoned-plan-dag.exe
+/dist/
+
+# Go test/coverage artifacts
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# Editors / OS
+.DS_Store
+*.swp
+
+# Orchestrator run scratch (checkpoints, event journal) — never committed
+.conductor-tmp/

@@ -9,6 +9,11 @@ import (
 	"os"
 )
 
+// binName is the CLI's own name, used in the usage text, error messages,
+// and the `--version` line. It matches the executable GoReleaser builds and
+// the name spec-lifecycle looks up on PATH (internal/plandag.BinName).
+const binName = "milestoned-plan-dag"
+
 const usage = `milestoned-plan-dag — a DAG of verifiable milestones (machine-first YAML plans)
 
 Usage:
@@ -21,6 +26,7 @@ Commands:
 
 Flags:
   -h, --help             Show this help text
+  -v, --version          Show the version
 `
 
 func main() {
@@ -48,11 +54,14 @@ func run(args []string) int {
 	case "-h", "--help", "help":
 		fmt.Fprint(os.Stdout, usage)
 		return 0
+	case "-v", "--version", "version":
+		fmt.Fprintln(os.Stdout, versionLine())
+		return 0
 	}
 
 	cmd, ok := commands[args[0]]
 	if !ok {
-		fmt.Fprintf(os.Stderr, "milestoned-plan-dag: unknown command %q\n\n%s", args[0], usage)
+		fmt.Fprintf(os.Stderr, "%s: unknown command %q\n\n%s", binName, args[0], usage)
 		return 2
 	}
 	return cmd(args[1:])

@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"milestoned-plan-dag/internal/dag"
-	"milestoned-plan-dag/internal/plan"
-	"milestoned-plan-dag/internal/schema"
+	"github.com/kentra-io/milestoned-plan-dag/internal/dag"
+	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
+	"github.com/kentra-io/milestoned-plan-dag/internal/schema"
 )
 
 // Result is the outcome of validating a plan: fatal Errors (a non-empty slice

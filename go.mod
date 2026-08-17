@@ -1,4 +1,4 @@
-module milestoned-plan-dag
+module github.com/kentra-io/milestoned-plan-dag
 
 go 1.24
 

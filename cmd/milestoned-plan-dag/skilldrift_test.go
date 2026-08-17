@@ -8,7 +8,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"milestoned-plan-dag/internal/validate"
+	"github.com/kentra-io/milestoned-plan-dag/internal/validate"
 )
 
 // skillPath is the authoring skill this CLI ships. It is the one document

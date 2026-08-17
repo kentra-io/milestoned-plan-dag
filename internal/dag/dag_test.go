@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"milestoned-plan-dag/internal/plan"
+	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
 )
 
 const validDir = "../../testdata/valid"

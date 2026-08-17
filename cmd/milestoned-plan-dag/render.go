@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"milestoned-plan-dag/internal/plan"
-	"milestoned-plan-dag/internal/render"
+	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
+	"github.com/kentra-io/milestoned-plan-dag/internal/render"
 )
 
 // renderCmd runs `render <plan.yaml>`: it loads the plan and emits a

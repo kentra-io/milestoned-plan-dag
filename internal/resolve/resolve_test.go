@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"milestoned-plan-dag/internal/plan"
+	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
 )
 
 // loadFixture is a small helper shared by the tests below.
