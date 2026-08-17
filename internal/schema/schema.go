@@ -15,7 +15,9 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 	"gopkg.in/yaml.v3"
@@ -23,6 +25,16 @@ import (
 
 //go:embed plan.schema.json
 var planSchemaJSON []byte
+
+// fallbackResourceURI identifies the embedded schema when it carries no $id
+// (it always does — TestSchemaIDIsThePinnedPublishedURL guards that — so this
+// is defensive only). It must be absolute: the compiler resolves a relative
+// resource name against the process working directory, which would stamp a
+// synthetic file:///<cwd>/plan.schema.json into every validation error — a
+// path that does not exist and that nothing ever tried to read. The schema is
+// embedded; nothing is fetched at runtime, so the URI is pure identity and
+// must not depend on where the CLI was invoked from.
+const fallbackResourceURI = "https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/main/schema/plan.schema.json"
 
 // PlanSchemaJSON returns the embedded draft-2020-12 JSON Schema bytes.
 func PlanSchemaJSON() []byte {
@@ -48,7 +60,10 @@ func Validate(planYAML []byte) error {
 	if err != nil {
 		return err
 	}
-	return sch.Validate(inst)
+	if err := sch.Validate(inst); err != nil {
+		return shapeViolation(err)
+	}
+	return nil
 }
 
 // compileFrom compiles a JSON Schema from its raw bytes as draft 2020-12.
@@ -57,16 +72,47 @@ func compileFrom(schemaJSON []byte) (*jsonschema.Schema, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse json schema: %w", err)
 	}
+	uri := resourceURI(doc)
 	c := jsonschema.NewCompiler()
 	c.DefaultDraft(jsonschema.Draft2020)
-	if err := c.AddResource("plan.schema.json", doc); err != nil {
+	if err := c.AddResource(uri, doc); err != nil {
 		return nil, fmt.Errorf("add schema resource: %w", err)
 	}
-	sch, err := c.Compile("plan.schema.json")
+	sch, err := c.Compile(uri)
 	if err != nil {
 		return nil, fmt.Errorf("compile schema: %w", err)
 	}
 	return sch, nil
+}
+
+// resourceURI is the absolute URI the schema is registered and compiled under:
+// its own $id, so the schema names itself exactly once (in the published JSON),
+// with fallbackResourceURI covering an $id-less document.
+func resourceURI(doc any) string {
+	if obj, ok := doc.(map[string]any); ok {
+		if id, ok := obj["$id"].(string); ok && id != "" {
+			return id
+		}
+	}
+	return fallbackResourceURI
+}
+
+// shapeViolation restates a jsonschema failure as a statement about the plan.
+// The library's root line — "jsonschema validation failed with '<uri>#'" —
+// names the schema, which reads like a failed schema load and tells a plan
+// author nothing actionable: the binary validates against the one schema it
+// embeds. The causes beneath it are the actionable part, so they are kept
+// verbatim, re-indented to preserve their nesting under the new root.
+func shapeViolation(err error) error {
+	var ve *jsonschema.ValidationError
+	if !errors.As(err, &ve) || len(ve.Causes) == 0 {
+		return err
+	}
+	lines := make([]string, 0, len(ve.Causes))
+	for _, cause := range ve.Causes {
+		lines = append(lines, "- "+strings.ReplaceAll(cause.Error(), "\n", "\n  "))
+	}
+	return fmt.Errorf("plan does not conform to the plan schema:\n%s", strings.Join(lines, "\n"))
 }
 
 // toInstance decodes plan YAML into a JSON-typed instance suitable for

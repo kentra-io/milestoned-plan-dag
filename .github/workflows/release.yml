@@ -30,6 +30,22 @@ jobs:
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
         with:
           go-version: "1.26.x"
+
+      # The published schema's $id — and every $schema URL in the docs and the
+      # authoring skill — is pinned to a release tag, so an editor validates
+      # against exactly the schema the released binary embeds. A tag that
+      # disagrees with the pin would ship a schema that misidentifies itself,
+      # so refuse to publish it. Bump the pin before tagging (docs/releasing.md).
+      - name: Pinned schema URL matches the tag
+        run: |
+          pinned=$(sed -n 's|.*milestoned-plan-dag/\(v[0-9][^/]*\)/schema/plan.schema.json.*|\1|p' \
+            schema/plan.schema.json | head -1)
+          if [ "$pinned" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::schema \$id is pinned to '${pinned}' but the release tag is '${GITHUB_REF_NAME}'." \
+                 "Bump the pinned schema URL across the repo (schema/, internal/schema/, README.md," \
+                 "skills/) and re-tag."
+            exit 1
+          fi
       - uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7
         with:
           distribution: goreleaser

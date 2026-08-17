@@ -110,10 +110,28 @@ which triggers on any `v*` tag.
 
 **Cutting a release:**
 
+First bump the pinned schema URL to the version about to be released. The
+schema's `$id`, its embedded mirror, and every `$schema` directive in the docs
+and the authoring skill all carry the tag, so an editor validates against
+exactly the schema the released binary embeds:
+
 ```sh
-git tag v0.1.0
-git push origin v0.1.0
+grep -rl 'milestoned-plan-dag/v0\.1\.0/schema/plan\.schema\.json' \
+  --include='*.json' --include='*.md' --include='*.yaml' . |
+  xargs sed -i '' 's|milestoned-plan-dag/v0\.1\.0/schema|milestoned-plan-dag/v0.2.0/schema|g'
+go test ./internal/schema/   # TestPinnedSchemaURLsAgree: every mention agrees
 ```
+
+Commit that, then tag:
+
+```sh
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The release workflow re-checks the pin against the tag and refuses to publish a
+mismatch, so a forgotten bump fails loudly instead of shipping a schema that
+misidentifies itself.
 
 CI then runs `goreleaser release --clean`, which:
 

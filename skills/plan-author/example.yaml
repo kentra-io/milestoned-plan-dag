@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.0/schema/plan.schema.json
 #
 # A small worked example exercising: explicit slugs, an implicit-chain edge
 # (milestone 2 declares no depends-on, so it inherits an edge on milestone 1),
