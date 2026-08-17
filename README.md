@@ -58,14 +58,17 @@ and the `validate` → `resolve`/`render` CLI workflow. See
 worked, validating branching plan.
 
 Point an editor's YAML language server at the published JSON Schema for
-inline completion and validation:
+inline completion and validation, pinned to the release tag matching your
+installed CLI (`milestoned-plan-dag --version`):
 
 ```yaml
-# yaml-language-server: $schema=./schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.0/schema/plan.schema.json
 ```
 
-(adjust the relative path to wherever `schema/plan.schema.json` sits from your
-plan file).
+This is an editor hint only — the CLI validates against the schema embedded in
+the binary and never fetches anything. Pin the two to the same tag, or the
+editor can accept a plan `validate` rejects. (Plans living inside this repo can
+use a relative path to `schema/plan.schema.json` instead.)
 
 ## Repository shape
 

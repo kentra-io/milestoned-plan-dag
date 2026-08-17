@@ -187,12 +187,18 @@ text.
 ## Authoring workflow
 
 1. **Write the YAML** by hand or by editing an existing plan, following the
-   grammar above. Pin the editor's schema helper to the published JSON Schema
-   with the first line of the file:
+   grammar above. Point the editor's schema helper at the published JSON Schema
+   with the first line of the file, pinned to the release tag matching the CLI
+   you validate with (`milestoned-plan-dag --version`):
 
    ```yaml
-   # yaml-language-server: $schema=../path/to/schema/plan.schema.json
+   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.0/schema/plan.schema.json
    ```
+
+   The tag matters. The CLI validates against the schema **embedded in the
+   binary** — it never fetches this URL, and the directive is an editor hint
+   only. Pinned to `main` (or to a tag other than your binary's), the editor can
+   go green on a plan the CLI rejects. `validate` is always the authority.
 
 2. **Validate.** This is the authoritative check — it runs JSON-Schema shape
    validation, then the semantic DAG rules a schema can't express (unique

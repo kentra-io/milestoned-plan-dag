@@ -1,7 +1,7 @@
 {
   "name": "milestoned-plan-dag",
   "description": "Authoring skill (plan-author) for the milestoned-plan-dag primitive: the machine-first YAML plan format in which a plan is a DAG of verifiable milestones. Documents the full grammar — milestone identity, the depends-on DAG and its implicit-chain fallback, the mandatory check/criteria/paths contract, checkbox steps — and the validate -> resolve/render CLI workflow.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Kentra"
   },

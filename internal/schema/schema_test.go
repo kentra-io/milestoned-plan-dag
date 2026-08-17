@@ -3,6 +3,7 @@ package schema
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -144,5 +145,45 @@ milestones:
 func TestOptionalSlotsAbsentValidates(t *testing.T) {
 	if err := Validate(readFile(t, filepath.Join(validDir, "optional-slots-absent.yaml"))); err != nil {
 		t.Fatalf("optional-slots-absent should validate: %v", err)
+	}
+}
+
+// A shape rejection names the offending part of the plan, never a schema
+// location. The compiler's own root line ("jsonschema validation failed with
+// '<uri>#'") reads like a failed schema load — and, before the schema was
+// registered under an absolute URI, printed a file:// path under the process
+// working directory that no such file ever occupied.
+func TestShapeErrorNamesTheViolationNotTheSchema(t *testing.T) {
+	err := Validate([]byte("schema_version: \"0.1.0\"\nplan_id: x\n"))
+	if err == nil {
+		t.Fatal("expected a plan with the wrong keys to fail shape validation")
+	}
+	msg := err.Error()
+	for _, unwanted := range []string{"file://", "jsonschema validation failed"} {
+		if strings.Contains(msg, unwanted) {
+			t.Errorf("shape error should not mention %q, got:\n%s", unwanted, msg)
+		}
+	}
+	if !strings.Contains(msg, "missing properties 'schemaVersion', 'milestones'") {
+		t.Errorf("shape error should name the violation, got:\n%s", msg)
+	}
+}
+
+// The same invalid plan produces the same message wherever the CLI is run
+// from: the embedded schema's URI is its $id, not a path resolved against the
+// working directory.
+func TestShapeErrorIsWorkingDirectoryIndependent(t *testing.T) {
+	doc := []byte("schemaVersion: 0.1.0\n")
+	before := Validate(doc)
+	if before == nil {
+		t.Fatal("expected a plan with no milestones to fail shape validation")
+	}
+	t.Chdir(t.TempDir())
+	after := Validate(doc)
+	if after == nil {
+		t.Fatal("expected a plan with no milestones to fail shape validation")
+	}
+	if before.Error() != after.Error() {
+		t.Errorf("shape error depends on the working directory:\n%s\n---\n%s", before, after)
 	}
 }
