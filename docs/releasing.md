@@ -116,17 +116,18 @@ and the authoring skill all carry the tag, so an editor validates against
 exactly the schema the released binary embeds:
 
 ```sh
-grep -rl 'milestoned-plan-dag/v0\.1\.0/schema/plan\.schema\.json' \
+prev=v0.1.1 next=v0.2.0   # the pin as it stands, and the version being cut
+grep -rl "milestoned-plan-dag/$prev/schema/plan.schema.json" \
   --include='*.json' --include='*.md' --include='*.yaml' . |
-  xargs sed -i '' 's|milestoned-plan-dag/v0\.1\.0/schema|milestoned-plan-dag/v0.2.0/schema|g'
+  xargs sed -i '' "s|milestoned-plan-dag/$prev/schema|milestoned-plan-dag/$next/schema|g"
 go test ./internal/schema/   # TestPinnedSchemaURLsAgree: every mention agrees
 ```
 
 Commit that, then tag:
 
 ```sh
-git tag v0.2.0
-git push origin v0.2.0
+git tag "$next"
+git push origin "$next"
 ```
 
 The release workflow re-checks the pin against the tag and refuses to publish a

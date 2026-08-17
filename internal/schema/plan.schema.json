@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.0/schema/plan.schema.json",
+  "$id": "https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.1/schema/plan.schema.json",
   "title": "milestoned-plan-dag plan",
   "description": "A machine-first plan: a DAG of verifiable milestones. Shape validation only; the CLI is authoritative for semantic DAG rules.",
   "type": "object",

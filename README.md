@@ -62,7 +62,7 @@ inline completion and validation, pinned to the release tag matching your
 installed CLI (`milestoned-plan-dag --version`):
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.0/schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.1/schema/plan.schema.json
 ```
 
 This is an editor hint only — the CLI validates against the schema embedded in
