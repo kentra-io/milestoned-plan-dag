@@ -12,6 +12,12 @@
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     },
+    "description": {
+      "description": "Markdown context shared by every milestone.",
+      "type": "string",
+      "minLength": 1
+    },
+    "rules": { "$ref": "#/$defs/rules" },
     "milestones": {
       "type": "array",
       "minItems": 1,
@@ -23,6 +29,11 @@
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
     },
+    "rules": {
+      "description": "References (skill names or repository paths) an implementer loads and a verifier grades against.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
     "milestone": {
       "type": "object",
       "additionalProperties": false,
@@ -31,6 +42,8 @@
         "number": { "type": "integer", "minimum": 1 },
         "slug": { "$ref": "#/$defs/slug" },
         "goal": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "rules": { "$ref": "#/$defs/rules" },
         "deliverables": { "$ref": "#/$defs/deliverables" },
         "contract": { "$ref": "#/$defs/contract" },
         "steps": {

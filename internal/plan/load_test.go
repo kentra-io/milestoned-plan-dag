@@ -167,3 +167,25 @@ milestones:
 		t.Fatal("expected a plain (non-checkbox) step to be rejected at load")
 	}
 }
+
+// plan-schema: "A plan and its milestones carry context and rules".
+func TestContextAndRulesLoad(t *testing.T) {
+	p := loadFixture(t, "context-and-rules.yaml")
+	if p.Description != "Adds a greeting endpoint. Every milestone follows the hexagonal layout.\n" {
+		t.Errorf("plan description = %q", p.Description)
+	}
+	if len(p.Rules) != 2 || p.Rules[0] != "java-hexagonal" || p.Rules[1] != "constitution/constitution.md" {
+		t.Errorf("plan rules = %v", p.Rules)
+	}
+	m := p.Milestones[0]
+	if m.Description != "The domain service the adapter in milestone 2 calls.\n" {
+		t.Errorf("milestone description = %q", m.Description)
+	}
+	if len(m.Rules) != 1 || m.Rules[0] != "docs/naming.md" {
+		t.Errorf("milestone rules = %v", m.Rules)
+	}
+	want := "Write the failing test\n```java\nassertThat(new Greeter().greet(\"Ada\")).isEqualTo(\"Hello, Ada\");\n```"
+	if m.Steps[0].Text != want {
+		t.Errorf("multi-line step text = %q, want %q", m.Steps[0].Text, want)
+	}
+}

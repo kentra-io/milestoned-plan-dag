@@ -19,6 +19,13 @@ type Plan struct {
 	// so consumers can detect the format revision (plan-schema: "The plan
 	// declares a schema version").
 	SchemaVersion string `yaml:"schemaVersion"`
+	// Description is optional markdown context every milestone shares: what
+	// the plan builds and how its milestones fit together.
+	Description string `yaml:"description,omitempty"`
+	// Rules are references — skill names or repository paths — that apply to
+	// every milestone: what an implementer loads before starting and what a
+	// verifier grades against. References, never copied content.
+	Rules []string `yaml:"rules,omitempty"`
 	// Milestones are in document order; index 0 is the first milestone.
 	Milestones []Milestone `yaml:"milestones"`
 }
@@ -34,6 +41,12 @@ type Milestone struct {
 	Slug string `yaml:"slug,omitempty"`
 	// Goal is the milestone's human label / intent.
 	Goal string `yaml:"goal"`
+	// Description is optional markdown: why this milestone exists and how it
+	// is meant to be built, beyond what deliverables and steps say.
+	Description string `yaml:"description,omitempty"`
+	// Rules are references (skill names or repository paths) this milestone
+	// needs in addition to the plan-level rules.
+	Rules []string `yaml:"rules,omitempty"`
 	// Deliverables is either prose or a structured create/modify/test map
 	// (optional structured detail slot).
 	Deliverables Deliverables `yaml:"deliverables,omitempty"`

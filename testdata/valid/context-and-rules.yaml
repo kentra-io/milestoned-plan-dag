@@ -1,0 +1,36 @@
+schemaVersion: 0.2.0
+description: |
+  Adds a greeting endpoint. Every milestone follows the hexagonal layout.
+rules:
+  - java-hexagonal
+  - constitution/constitution.md
+milestones:
+  - number: 1
+    slug: greeter
+    goal: Greeter domain service
+    description: |
+      The domain service the adapter in milestone 2 calls.
+    rules:
+      - docs/naming.md
+    deliverables:
+      create:
+        - src/main/java/greeter/Greeter.java
+      test:
+        - src/test/java/greeter/GreeterTest.java
+    contract:
+      check: ./gradlew test
+      criteria:
+        - name: src/test/java/greeter/GreeterTest.java::greetsByName
+          given: a Greeter
+          when: greet("Ada") is called
+          then: it returns "Hello, Ada"
+      paths:
+        - src/main/java/greeter/**
+        - src/test/java/greeter/**
+    steps:
+      - |
+        [ ] Write the failing test
+        ```java
+        assertThat(new Greeter().greet("Ada")).isEqualTo("Hello, Ada");
+        ```
+      - "[ ] Implement Greeter.greet"
