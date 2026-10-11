@@ -21,7 +21,9 @@ import (
 // document order, each carrying its resolved depends_on edges, plus the
 // computed topological order for the current serial executor.
 type Projection struct {
-	SchemaVersion string `yaml:"schemaVersion"`
+	SchemaVersion string   `yaml:"schemaVersion"`
+	Description   string   `yaml:"description,omitempty"`
+	Rules         []string `yaml:"rules,omitempty"`
 	// Order is a valid topological order over the milestones (Kahn's
 	// algorithm, ties broken by number — see internal/dag.TopoOrder),
 	// deterministic and therefore byte-identical across runs.
@@ -35,6 +37,8 @@ type MilestoneProjection struct {
 	Number       int          `yaml:"number"`
 	Slug         string       `yaml:"slug"`
 	Goal         string       `yaml:"goal"`
+	Description  string       `yaml:"description,omitempty"`
+	Rules        []string     `yaml:"rules,omitempty"`
 	Deliverables Deliverables `yaml:"deliverables"`
 	Contract     Contract     `yaml:"contract"`
 	Steps        []Step       `yaml:"steps"`
@@ -101,6 +105,8 @@ func Resolve(p *plan.Plan) (*Projection, error) {
 
 	proj := &Projection{
 		SchemaVersion: p.SchemaVersion,
+		Description:   p.Description,
+		Rules:         p.Rules,
 		Order:         order,
 		Milestones:    make([]MilestoneProjection, 0, len(p.Milestones)),
 	}
@@ -127,6 +133,8 @@ func milestoneProjection(m plan.Milestone, g *dag.Graph) MilestoneProjection {
 		Number:       m.Number,
 		Slug:         m.Slug,
 		Goal:         m.Goal,
+		Description:  m.Description,
+		Rules:        m.Rules,
 		Deliverables: deliverablesProjection(m.Deliverables),
 		Contract:     contractProjection(m.Contract),
 		Steps:        stepsProjection(m.Steps),

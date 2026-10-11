@@ -5,18 +5,15 @@
 # workflow (.github/workflows/release.yml) runs `goreleaser release`, which
 # builds all targets, publishes a GitHub Release with archives + checksums,
 # and pushes a Homebrew cask to kentra-io/homebrew-tap (the third cask in
-# that tap, alongside `constitution` and `lifecycle`).
+# that tap, alongside `constitution`).
 #
 # Local dry run (no publish, builds every target):
 #   goreleaser release --snapshot --clean --skip=publish
 version: 2
 
-# project_name drives the binary name, archive names, and cask name. Unlike
-# the sibling `spec-lifecycle` repo (whose binary is `lifecycle`, not the repo
-# name), this primitive's repo name and binary name are already identical —
-# and the name is load-bearing: spec-lifecycle resolves this binary by looking
-# up exactly "milestoned-plan-dag" on PATH (its internal/plandag.BinName).
-# Do not shorten it here without changing that seam.
+# project_name drives the binary name, archive names, and cask name. The
+# repo name and the binary name are identical, and tools that call this
+# CLI look it up as exactly "milestoned-plan-dag" on PATH — keep it.
 project_name: milestoned-plan-dag
 
 before:
@@ -44,7 +41,7 @@ builds:
     # -X flags inject version metadata into package main's build-time vars
     # (cmd/milestoned-plan-dag/version.go) so a released binary's `--version`
     # reports its tag, commit, and build date instead of falling back to
-    # ReadBuildInfo. spec-lifecycle parses that output — see version.go.
+    # ReadBuildInfo.
     ldflags:
       - -s -w
       - -X main.version={{ .Version }}

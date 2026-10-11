@@ -11,8 +11,6 @@ import (
 // runtime/debug.ReadBuildInfo so a plain
 // `go install .../cmd/milestoned-plan-dag@<ref>` still reports a
 // meaningful version (module pseudo-version + VCS revision).
-//
-// Mirrors cmd/lifecycle/version.go in the spec-lifecycle sibling primitive.
 var (
 	version = ""
 	commit  = ""
@@ -23,11 +21,9 @@ var (
 // is unreachable in a test binary (the toolchain always embeds build info).
 var readBuildInfo = debug.ReadBuildInfo
 
-// versionLine is what `--version` prints. The leading "milestoned-plan-dag
-// version " prefix is load-bearing, not decoration: spec-lifecycle's
-// internal/plandag.Version parses this binary's output with the regexp
-// `^milestoned-plan-dag version\s+(.*)$` to run its companion-primitive
-// preflight. Changing the prefix breaks that seam.
+// versionLine is what `--version` prints. Callers that check the installed
+// version parse the leading "milestoned-plan-dag version " prefix, so it is
+// a format contract: see version_test.go.
 func versionLine() string {
 	return fmt.Sprintf("%s version %s", binName, buildVersion())
 }

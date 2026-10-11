@@ -10,16 +10,9 @@ brew install kentra-io/tap/milestoned-plan-dag
 
 The cask is published to [`kentra-io/homebrew-tap`](https://github.com/kentra-io/homebrew-tap)
 by the release pipeline — the same tap that carries the
-[`constitution`](https://github.com/kentra-io/adr-sourced-constitution) and
-[`lifecycle`](https://github.com/kentra-io/spec-lifecycle) casks. The binary is
+[`constitution`](https://github.com/kentra-io/adr-sourced-constitution) cask. The binary is
 not code-signed; the cask strips the macOS quarantine attribute on install so it
 runs without a Gatekeeper prompt.
-
-> **Installing this alongside `lifecycle`?** `spec-lifecycle` shells out to this
-> binary for its plan-stage gate and archive step-completion gate, resolving it
-> by the exact name `milestoned-plan-dag` on `PATH`. Install both, or neither —
-> `lifecycle init` warns when this binary is absent, and the plan/archive gates
-> fail outright without it.
 
 ### `go install`
 
@@ -85,14 +78,11 @@ The `<version>_<os>_<arch>` template is produced by the `archives.name_template`
 in [`.goreleaser.yaml`](../.goreleaser.yaml); keep the two in sync if either
 changes.
 
-## The `--version` output is a cross-repo contract
+## The `--version` output format
 
-`spec-lifecycle` runs `milestoned-plan-dag --version` and parses the result with
-the regexp `^milestoned-plan-dag version\s+(.*)$` (its
-`internal/plandag/version.go`) to drive its companion-primitive preflight. The
-`milestoned-plan-dag version ` prefix is therefore load-bearing.
-`cmd/milestoned-plan-dag/version_test.go` holds a verbatim copy of that regexp
-and fails if the format drifts — fix the output rather than relaxing the test.
+`milestoned-plan-dag --version` prints `milestoned-plan-dag version <version>`.
+Tools that check the installed version parse that prefix;
+`cmd/milestoned-plan-dag/version_test.go` pins the format.
 
 ## How a release is cut
 
@@ -103,7 +93,7 @@ which triggers on any `v*` tag.
 
 - `kentra-io/milestoned-plan-dag` exists (public) and the bot has write access.
 - `kentra-io/homebrew-tap` exists (public) — already established by the
-  constitution and spec-lifecycle casks.
+  constitution cask.
 - `HOMEBREW_TAP_TOKEN` is an **org-level** Actions secret (the fine-grained PAT
   needs `Contents: read/write` on `homebrew-tap`). GoReleaser needs it to push
   the cask cross-repo — the default `GITHUB_TOKEN` is scoped to this repo only.
@@ -139,7 +129,7 @@ CI then runs `goreleaser release --clean`, which:
 1. Builds all targets (linux/darwin/windows × amd64/arm64).
 2. Creates the GitHub Release with the archives and `checksums.txt`.
 3. Pushes the updated Homebrew cask to `kentra-io/homebrew-tap` (the third cask
-   in that tap, alongside `constitution` and `lifecycle`).
+   in that tap, alongside `constitution`).
 
 Validate the config locally before tagging:
 

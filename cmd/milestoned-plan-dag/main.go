@@ -10,8 +10,8 @@ import (
 )
 
 // binName is the CLI's own name, used in the usage text, error messages,
-// and the `--version` line. It matches the executable GoReleaser builds and
-// the name spec-lifecycle looks up on PATH (internal/plandag.BinName).
+// and the `--version` line. It matches the executable GoReleaser builds
+// and the name callers look up on PATH.
 const binName = "milestoned-plan-dag"
 
 const usage = `milestoned-plan-dag — a DAG of verifiable milestones (machine-first YAML plans)

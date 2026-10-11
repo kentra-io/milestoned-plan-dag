@@ -1,15 +1,23 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.1/schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.2.0/schema/plan.schema.json
 #
 # A small worked example exercising: explicit slugs, an implicit-chain edge
 # (milestone 2 declares no depends-on, so it inherits an edge on milestone 1),
 # a branching + merging DAG, named-test criteria against one standard check,
 # both contract "conscious escapes" (check: none and paths: []), and a mix of
 # done/not-done checkbox steps.
-schemaVersion: 0.1.0
+schemaVersion: 0.2.0
+description: |
+  A worked example: a foundation milestone, then two independent branches
+  that can run in parallel, then a join.
+rules:
+  - docs/conventions.md
 milestones:
   - number: 1
     slug: scaffold
     goal: Stand up the widget module scaffold
+    description: |
+      Lays down the shared package both branches import. Nothing in it is
+      branch-specific.
     deliverables:
       create:
         - go.mod

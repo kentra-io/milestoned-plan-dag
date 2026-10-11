@@ -22,11 +22,6 @@ or grab a per-platform archive from the
 [releases page](https://github.com/kentra-io/milestoned-plan-dag/releases).
 Full install and release documentation: [`docs/releasing.md`](./docs/releasing.md).
 
-> **Using this with [`spec-lifecycle`](https://github.com/kentra-io/spec-lifecycle)?**
-> `lifecycle` shells out to this binary for its plan-stage gate and archive
-> step-completion gate, resolving it by the exact name `milestoned-plan-dag` on
-> `PATH`. Install both, or neither.
-
 ## CLI
 
 A single static binary with three subcommands:
@@ -52,7 +47,8 @@ read-only human markdown view.
 [`skills/plan-author/SKILL.md`](./skills/plan-author/SKILL.md) is the
 agent-agnostic authoring skill: it documents the full YAML grammar (milestone
 identity, the `depends-on` DAG and its implicit-chain fallback, the mandatory
-`check`/`criteria`/`paths` contract and its conscious escapes, checkbox steps)
+`check`/`criteria`/`paths` contract and its conscious escapes, plan- and
+milestone-level `description` and `rules`, multi-line checkbox steps)
 and the `validate` → `resolve`/`render` CLI workflow. See
 [`skills/plan-author/example.yaml`](./skills/plan-author/example.yaml) for a
 worked, validating branching plan.
@@ -62,7 +58,7 @@ inline completion and validation, pinned to the release tag matching your
 installed CLI (`milestoned-plan-dag --version`):
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.1.1/schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.2.0/schema/plan.schema.json
 ```
 
 This is an editor hint only — the CLI validates against the schema embedded in
