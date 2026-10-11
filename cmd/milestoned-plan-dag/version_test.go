@@ -7,20 +7,15 @@ import (
 	"testing"
 )
 
-// planDAGVersionRe is a verbatim copy of the regexp spec-lifecycle uses to
-// read this binary's version (its internal/plandag/version.go). The
-// companion primitive shells out to `milestoned-plan-dag --version` and
-// parses the result, so the output format is a cross-repo contract. If this
-// test fails, spec-lifecycle's plan-dag preflight breaks — fix the output,
-// do not relax the regexp.
+// planDAGVersionRe is the format callers parse; changing the output breaks them.
 var planDAGVersionRe = regexp.MustCompile(`(?i)^milestoned-plan-dag version\s+(.*)$`)
 
-func TestVersionLineMatchesSpecLifecycleContract(t *testing.T) {
+func TestVersionLineFormat(t *testing.T) {
 	line := versionLine()
 
 	m := planDAGVersionRe.FindStringSubmatch(line)
 	if m == nil {
-		t.Fatalf("versionLine() = %q, which spec-lifecycle's plandag.Version cannot parse (regexp %q)", line, planDAGVersionRe)
+		t.Fatalf("versionLine() = %q does not match %q", line, planDAGVersionRe)
 	}
 	if strings.TrimSpace(m[1]) == "" {
 		t.Errorf("versionLine() = %q — parses, but the captured version is empty", line)
@@ -29,8 +24,7 @@ func TestVersionLineMatchesSpecLifecycleContract(t *testing.T) {
 
 // TestVersionFlagsExitZero pins the dispatch wiring: `--version`, `-v`, and
 // the bare `version` word must all print the version and succeed. A missing
-// flag here is exactly the defect that made the released binary unusable to
-// spec-lifecycle's preflight.
+// flag here is a defect that made a released binary unusable to version checks.
 func TestVersionFlagsExitZero(t *testing.T) {
 	for _, arg := range []string{"--version", "-v", "version"} {
 		if code := run([]string{arg}); code != 0 {

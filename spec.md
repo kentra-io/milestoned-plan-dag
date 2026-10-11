@@ -49,7 +49,9 @@ consumers.
 The schema reserves optional slots that let a plan carry file-specific detail
 without mandating it: structured `Create` / `Modify` / `Test` deliverables, a
 per-step `files` reference, and a test-case-shaped `criteria`. A plan omitting all
-of these remains valid.
+of these remains valid. A plan and each milestone may also carry a markdown
+`description` and a `rules` list of references (skill names or repository
+paths); a milestone's step may span several lines.
 
 ## Capability: plan-validation (the validator guarantees)
 

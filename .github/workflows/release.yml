@@ -8,8 +8,7 @@ name: Release
 # Actions here are pinned to full commit SHAs (tag in trailing comment) because
 # this workflow holds a cross-repo token (HOMEBREW_TAP_TOKEN); a mutated tag on
 # a third-party action must not be able to exfiltrate it. ci.yml stays
-# tag-pinned (no secrets beyond the default token). This mirrors the
-# spec-lifecycle sibling primitive's release workflow.
+# tag-pinned (no secrets beyond the default token).
 on:
   push:
     tags:
@@ -56,6 +55,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Cross-repo token for pushing the cask to kentra-io/homebrew-tap. The
           # default GITHUB_TOKEN cannot write to another repo. This is the same
-          # org-level secret the constitution and spec-lifecycle repos use.
+          # org-level secret the constitution repo uses.
           # Absent it, the build succeeds but the cask push step fails.
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}

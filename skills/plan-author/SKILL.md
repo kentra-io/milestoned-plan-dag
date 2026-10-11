@@ -1,6 +1,6 @@
 ---
 name: plan-author
-description: Author and validate a milestoned-plan-dag YAML plan — a DAG of verifiable milestones with a mandatory check/criteria/paths contract. Use when writing a new plan.yaml, editing milestones/dependencies in an existing plan, or debugging a validate/resolve/render failure for this format.
+description: Writes and validates milestoned-plan-dag plans — YAML DAGs of milestones an implementer can execute without exploring the codebase. Use when writing, editing or reviewing a plan.yaml.
 ---
 
 # Authoring a milestoned-plan-dag plan
@@ -30,34 +30,73 @@ milestones that point elsewhere. Write one plan per repository instead.
 The same rule covers a plan whose deliverable is a **new** repository: create the
 repo first, then write the plan inside it.
 
-## Self-contained is the bar
+## The bar: an implementer never explores
 
-A milestone is read **alone** — by an implementer who has this repository, this
-one milestone, and nothing else. It has to carry enough to start work without
-opening another document or asking a question.
+A milestone is handed to an implementer **alone** — this repository, the
+plan-level `description` and `rules`, this one milestone, nothing else. It
+must start work without opening another document, searching the codebase to
+learn conventions, or asking a question. Write every milestone so a skilled
+engineer with zero context for this codebase and questionable taste could
+finish it.
 
-- **Names, not references.** `deliverables` lists the file paths this milestone
-  produces and, for each, the class or function it introduces and its one-line
-  responsibility. "As described in the design doc" is not a deliverable.
-- **Criteria written out.** Each criterion states its `given`/`when`/`then` in
-  full and `name`s the test that proves it. A criterion that points elsewhere
-  for its detail is not self-contained.
-- **Everything else is prose, kept short.** Precision lives in the names and the
-  criteria; the surrounding text only has to be clear enough to act on.
+- **Names, not references.** `deliverables` lists every file path, and the
+  milestone's `description` or steps name each type or function the file
+  introduces with its signature. "As described in the design doc" is a
+  plan failure.
+- **Code, not intentions.** A step that changes code shows the code. A step
+  that runs a command shows the command and its expected output.
+- **Criteria written out.** Each criterion states `given`/`when`/`then` in full
+  and `name`s the test that proves it.
+- **Cross-milestone types are named once, where they are born.** A type,
+  function or file one milestone creates and another uses is named with its
+  signature in the milestone that creates it. Later milestones use exactly
+  that name.
+- **Versions are pinned.** A dependency is added with an exact version in the
+  earliest milestone that needs it. "Latest" is not a deliverable.
+- **Every milestone ends green** on the standard `check`, and keeps every
+  earlier milestone's tests green.
 
-Test it by reading one milestone with the rest of the plan covered. If you would
-have to ask a question before starting, that milestone is not done.
+Test it: read one milestone with the rest of the plan covered. If you would
+have to look something up or ask before starting, the milestone is not done.
+
+## Rules: references the implementer loads
+
+`rules` exist so the implementer loads the right guidance up front and the
+verifier grades against a known list.
+
+- List **references, never copies**: a skill name (`java-hexagonal`) or a repo
+  path (`constitution/constitution.md`, `docs/naming.md`).
+- Put what every milestone needs in plan-level `rules`; put only additions in a
+  milestone's `rules`.
+- Leave out what the agent runtime loads by itself — for Claude Code,
+  `CLAUDE.md`/`AGENTS.md` and path-scoped `.claude/rules/*.md`.
+- Keep the list minimal and relevant. Every reference costs the implementer
+  context; a rule that does not bear on the milestone's files does not belong.
+
+## Parallel milestones
+
+Two milestones with no dependency path between them may run at the same time,
+in separate worktrees, and are merged afterwards. Give them non-overlapping
+`paths` (`validate` warns when they could touch the same file) and put shared
+types, shared files and dependency pins in a milestone both depend on.
 
 ## Top-level shape
 
 ```yaml
-schemaVersion: 0.1.0
+schemaVersion: 0.2.0
+description: |          # optional — context every milestone shares
+  ...
+rules:                  # optional — references every milestone loads
+  - <skill name or repo path>
 milestones:
   - number: 1
     ...
 ```
 
-- `schemaVersion` — semver, no `v` prefix. The current format version is `0.1.0`.
+- `schemaVersion` — semver, no `v` prefix. The current format version is `0.2.0`.
+- `description` — optional markdown: context every milestone shares.
+- `rules` — optional list of references (skill names or repo paths) every
+  milestone loads.
 - `milestones` — a non-empty list, in document order (index 0 is read first, but
   identity and ordering are governed by `number`/`slug` and `depends-on`, not
   list position).
@@ -71,6 +110,8 @@ Each entry under `milestones` is a mapping:
 | `number` | yes | Integer ordinal (≥ 1), unique across the plan. Reading order / deterministic tie-break. |
 | `slug` | no | Stable, position-independent kebab-case identity (`^[a-z0-9]+(-[a-z0-9]+)*$`). If omitted, it is derived from `goal` (lowercased, punctuation stripped, words joined with `-`). `depends-on` always references slugs, never numbers. |
 | `goal` | yes | The milestone's human label / intent (non-empty string). |
+| `description` | no | Markdown: why this milestone exists and how to build it — the decisions, the shape of the code, the gotchas. Context for the implementer, not a restatement of the steps. |
+| `rules` | no | References (skill names or repo paths) this milestone needs beyond the plan-level `rules`. |
 | `deliverables` | no | Either a prose string, or a structured `create` / `modify` / `test` map of file lists (an optional structured detail slot — pick whichever fits). |
 | `contract` | yes | The mandatory verification contract — see below. |
 | `steps` | yes | A non-empty list of checkbox items — see below. |
@@ -167,17 +208,26 @@ contract:
 
 ### Steps
 
-`steps` is a non-empty list of checkbox items, each either a bare checkbox
-string or a `{text, files}` mapping when you want to record which files a step
-touches:
+`steps` is a non-empty list of checkbox items. Each step is one action of two
+to five minutes: write the failing test, run it and see it fail, write the
+code, run it and see it pass, commit. A step may span several lines — use a
+YAML block scalar and start it with the checkbox:
 
 ```yaml
 steps:
-  - "[x] scaffold the package"
-  - "[ ] wire it into the CLI"
-  - text: "[ ] write the loader"
+  - |
+    [ ] Write the failing test
+    ```go
+    func TestHandlesEmptyInput(t *testing.T) {
+        if got := Parse(""); got != nil {
+            t.Fatalf("Parse(\"\") = %v, want nil", got)
+        }
+    }
+    ```
+  - "[ ] Run `go test ./internal/foo/ -run TestHandlesEmptyInput` — expect FAIL: undefined: Parse"
+  - text: "[ ] Implement Parse"
     files:
-      - internal/plan/load.go
+      - internal/foo/parse.go
 ```
 
 Every entry must begin with `[ ]` (not started) or `[x]` / `[X]` (done); the
