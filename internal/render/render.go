@@ -13,12 +13,17 @@ import (
 	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
 )
 
-// Render produces the full markdown document for a plan: one "## Milestone
-// N: <goal>" section per milestone, in document order, each carrying its
-// Goal, Deliverables, a fenced contract block, and its steps as `- [ ]`/`-
-// [x]` checkboxes.
+// Render produces the full markdown document for a plan: an optional "##
+// Plan" preamble (the plan-level description and rules), then one "##
+// Milestone N: <goal>" section per milestone, in document order, each
+// carrying its Goal, optional Description and Rules, Deliverables, a fenced
+// contract block, and its steps as `- [ ]`/`- [x]` checkboxes.
 func Render(p *plan.Plan) (string, error) {
 	var b strings.Builder
+	if p.Description != "" || len(p.Rules) > 0 {
+		b.WriteString("## Plan\n\n")
+		renderContext(&b, p.Description, p.Rules)
+	}
 	for i, m := range p.Milestones {
 		if i > 0 {
 			b.WriteString("\n")
@@ -28,10 +33,25 @@ func Render(p *plan.Plan) (string, error) {
 	return b.String(), nil
 }
 
+// renderContext writes a description paragraph and a one-line rules list,
+// each only when present.
+func renderContext(b *strings.Builder, description string, rules []string) {
+	if d := strings.TrimSpace(description); d != "" {
+		fmt.Fprintf(b, "%s\n\n", d)
+	}
+	if len(rules) > 0 {
+		fmt.Fprintf(b, "**Rules** — %s\n\n", strings.Join(rules, ", "))
+	}
+}
+
 // renderMilestone appends one milestone's markdown section to b.
 func renderMilestone(b *strings.Builder, m plan.Milestone) {
 	fmt.Fprintf(b, "## Milestone %d: %s\n\n", m.Number, m.Goal)
 	fmt.Fprintf(b, "**Goal** — %s\n\n", m.Goal)
+	if strings.TrimSpace(m.Description) != "" {
+		b.WriteString("**Description**\n\n")
+	}
+	renderContext(b, m.Description, m.Rules)
 	fmt.Fprintf(b, "**Deliverables** — %s\n\n", renderDeliverables(m.Deliverables))
 
 	b.WriteString("**Validation contract**\n\n")
@@ -99,13 +119,23 @@ func renderPathsList(b *strings.Builder, key string, paths []string) {
 	}
 }
 
-// renderSteps writes one `- [ ]`/`- [x]` bullet per step.
+// renderSteps writes one `- [ ]`/`- [x]` bullet per step. A multi-line step
+// keeps its first line on the bullet and indents every following line by two
+// spaces, so the whole step — code blocks included — stays one list item.
 func renderSteps(b *strings.Builder, steps []plan.Step) {
 	for _, s := range steps {
 		mark := " "
 		if s.Done {
 			mark = "x"
 		}
-		fmt.Fprintf(b, "- [%s] %s\n", mark, s.Text)
+		lines := strings.Split(s.Text, "\n")
+		fmt.Fprintf(b, "- [%s] %s\n", mark, lines[0])
+		for _, line := range lines[1:] {
+			if line == "" {
+				b.WriteString("\n")
+				continue
+			}
+			fmt.Fprintf(b, "  %s\n", line)
+		}
 	}
 }
