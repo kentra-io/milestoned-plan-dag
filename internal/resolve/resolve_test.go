@@ -2,6 +2,7 @@ package resolve
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
@@ -179,5 +180,33 @@ func TestResolve_Golden(t *testing.T) {
 	}
 	if string(got) != string(want) {
 		t.Fatalf("resolve output does not match golden:\ngot:\n%s\nwant:\n%s", got, want)
+	}
+}
+
+// The projection carries plan- and milestone-level description and rules, so
+// an executor reading only the resolve output has the full context.
+func TestResolve_CarriesContextAndRules(t *testing.T) {
+	p := loadFixture(t, "../../testdata/valid/context-and-rules.yaml")
+
+	proj, err := Resolve(p)
+	if err != nil {
+		t.Fatalf("Resolve: %v", err)
+	}
+	if proj.Description == "" || len(proj.Rules) != 2 {
+		t.Fatalf("plan context lost: description=%q rules=%v", proj.Description, proj.Rules)
+	}
+	m := proj.Milestones[0]
+	if m.Description == "" || len(m.Rules) != 1 || m.Rules[0] != "docs/naming.md" {
+		t.Fatalf("milestone context lost: description=%q rules=%v", m.Description, m.Rules)
+	}
+
+	out, err := proj.Marshal()
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+	for _, want := range []string{"description: |", "rules:\n    - java-hexagonal", "- docs/naming.md"} {
+		if !strings.Contains(string(out), want) {
+			t.Errorf("marshalled projection missing %q:\n%s", want, out)
+		}
 	}
 }
