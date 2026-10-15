@@ -135,6 +135,20 @@ func TestEmptyCriteriaRejected(t *testing.T) {
 	}
 }
 
+// A plan written before 0.3.0 relied on the implicit edge on the preceding
+// milestone, which no longer exists; reading it would silently drop its
+// ordering, so validate rejects it and says how to migrate.
+func TestOldSchemaVersionRejected(t *testing.T) {
+	r := validate(t, "invalid/old-schema-version.yaml")
+	if r.OK() {
+		t.Fatal("a 0.2.0 plan should be rejected")
+	}
+	e := joinErrs(r)
+	if !strings.Contains(e, `schemaVersion "0.2.0" is not supported`) || !strings.Contains(e, "depends-on") {
+		t.Errorf("error should name the version and the depends-on migration, got: %s", e)
+	}
+}
+
 // --- Warn case --------------------------------------------------------------
 
 // plan-validation "Overlapping paths on independent milestones warn but pass".
