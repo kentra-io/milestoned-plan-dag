@@ -93,7 +93,8 @@ milestones:
     ...
 ```
 
-- `schemaVersion` — semver, no `v` prefix. The current format version is `0.3.0`; `validate` rejects any other.
+- `schemaVersion` — semver, no `v` prefix. The current format version is
+  `0.3.0`; `validate` rejects any other.
 - `description` — optional markdown: context every milestone shares.
 - `rules` — optional list of references (skill names or repo paths) every
   milestone loads.
@@ -143,7 +144,7 @@ can start at once:
   sequential plan lists the predecessor on every milestone after the first.
 - A plan may end in several sinks; nothing requires a joining milestone.
 
-Validation rejects: dangling edges (a `depends-on` slug nothing defines) and
+Validation rejects: dangling edges (a `depends-on` slug nothing defines),
 cycles (named by the offending milestone chain), and a `schemaVersion` other
 than `0.3.0`.
 
@@ -264,7 +265,8 @@ text.
 
 3. **Resolve**, once the plan validates, to see the machine-readable
    projection — every milestone plus the authoritative `depends_on` edges
-   (exactly the declared edges, `[]` for a root) and the computed topological `order`:
+   (exactly the declared edges, `[]` for a root) and the computed
+   topological `order`:
 
    ```
    milestoned-plan-dag resolve plan.yaml
