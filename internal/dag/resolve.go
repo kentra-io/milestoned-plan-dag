@@ -3,11 +3,9 @@
 // which edges exist, whether they form a cycle, and whether a dependency path
 // runs between two milestones (reachability).
 //
-// Edge model (plan-schema "Dependency edges form a DAG"): a milestone that
-// declares `depends-on` uses exactly those slugs; a milestone that declares
-// none inherits an implicit edge on the immediately preceding milestone in
-// document order. The first milestone has no predecessor and therefore no
-// implicit edge, so a plan with no explicit edges is a sequential chain.
+// Edge model (plan-schema "Dependency edges form a DAG"): a milestone depends
+// on exactly the slugs its `depends-on` lists. A milestone that lists none is
+// a root and can start at once; no edge is ever inferred from document order.
 // Because edges reference slugs, they are position-independent: reordering
 // milestones (changing their numbers) does not change any edge.
 package dag
@@ -19,8 +17,7 @@ import "github.com/kentra-io/milestoned-plan-dag/internal/plan"
 type Graph struct {
 	// Slugs lists milestone slugs in document order.
 	Slugs []string
-	// Deps maps a milestone slug to the slugs it depends on (its resolved
-	// incoming edges, explicit ∪ implicit).
+	// Deps maps a milestone slug to the slugs it depends on — exactly its declared depends-on.
 	Deps map[string][]string
 	// Numbers maps a milestone slug to its ordinal `number`, used as the
 	// deterministic tie-break when linearizing independent milestones.
@@ -30,10 +27,9 @@ type Graph struct {
 	defined map[string]struct{}
 }
 
-// Build resolves the plan's edge set: explicit `depends-on` where present,
-// otherwise an implicit edge on the immediately preceding milestone. Slug
-// identity is used verbatim; duplicate slugs (rejected elsewhere by the
-// validator) collapse in the map and are not Build's concern.
+// Build resolves the plan's edge set: each milestone's explicit `depends-on`,
+// nothing else. Slug identity is used verbatim; duplicate slugs (rejected
+// elsewhere by the validator) collapse in the map and are not Build's concern.
 func Build(p *plan.Plan) *Graph {
 	g := &Graph{
 		Deps:    make(map[string][]string, len(p.Milestones)),
@@ -45,15 +41,8 @@ func Build(p *plan.Plan) *Graph {
 		g.defined[m.Slug] = struct{}{}
 		g.Numbers[m.Slug] = m.Number
 	}
-	for i, m := range p.Milestones {
-		switch {
-		case len(m.DependsOn) > 0:
-			g.Deps[m.Slug] = append([]string(nil), m.DependsOn...)
-		case i > 0:
-			g.Deps[m.Slug] = []string{p.Milestones[i-1].Slug}
-		default:
-			g.Deps[m.Slug] = nil
-		}
+	for _, m := range p.Milestones {
+		g.Deps[m.Slug] = append([]string(nil), m.DependsOn...)
 	}
 	return g
 }

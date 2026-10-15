@@ -42,9 +42,8 @@ type MilestoneProjection struct {
 	Deliverables Deliverables `yaml:"deliverables"`
 	Contract     Contract     `yaml:"contract"`
 	Steps        []Step       `yaml:"steps"`
-	// DependsOn is the resolved incoming edge set (explicit depends-on, or
-	// the implicit preceding-milestone edge) — authoritative, and always
-	// present even when empty (emitted as `[]`, never omitted).
+	// DependsOn is the milestone's resolved incoming edge set — exactly its
+	// declared depends-on — always present, emitted as `[]` for a root.
 	DependsOn []string `yaml:"depends_on"`
 }
 

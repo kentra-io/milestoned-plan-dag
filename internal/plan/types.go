@@ -54,9 +54,8 @@ type Milestone struct {
 	Contract Contract `yaml:"contract"`
 	// Steps are checkbox-tracked breakdown items.
 	Steps []Step `yaml:"steps"`
-	// DependsOn lists the slugs of milestones that must complete before this
-	// one. Empty means an implicit dependency on the preceding milestone
-	// (resolved in a later milestone).
+	// DependsOn lists the slugs this milestone depends on. Absent or empty
+	// means none: the milestone is a root.
 	DependsOn []string `yaml:"depends-on,omitempty"`
 }
 

@@ -29,9 +29,9 @@ func loadInline(t *testing.T, y string) *plan.Plan {
 
 func deps(g *Graph, slug string) []string { return g.Deps[slug] }
 
-// plan-schema "No explicit edges yields a sequential chain": a plan with no
-// depends-on resolves to an implicit preceding-milestone chain.
-func TestImplicitChain(t *testing.T) {
+// plan-schema "Dependency edges form a DAG": a chain is written out edge by
+// edge; sequential.yaml declares model -> scaffold and validate -> model.
+func TestExplicitChain(t *testing.T) {
 	g := Build(load(t, "sequential.yaml"))
 	if got := deps(g, "scaffold"); len(got) != 0 {
 		t.Errorf("first milestone should have no edge, got %v", got)
@@ -44,6 +44,38 @@ func TestImplicitChain(t *testing.T) {
 	}
 	if !g.Reachable("validate", "scaffold") {
 		t.Errorf("validate should transitively depend on scaffold")
+	}
+}
+
+// plan-schema "A milestone without depends-on is a root": no edge is ever
+// inferred from document order, so several milestones can start at once.
+func TestNoDependsOnMeansRoot(t *testing.T) {
+	g := Build(loadInline(t, `schemaVersion: 0.3.0
+milestones:
+  - number: 1
+    slug: a
+    goal: a
+    contract: {check: none, criteria: x, paths: []}
+    steps: ["[ ] s"]
+  - number: 2
+    slug: b
+    goal: b
+    contract: {check: none, criteria: x, paths: []}
+    steps: ["[ ] s"]
+  - number: 3
+    slug: c
+    goal: c
+    contract: {check: none, criteria: x, paths: []}
+    depends-on: []
+    steps: ["[ ] s"]
+`))
+	for _, s := range []string{"a", "b", "c"} {
+		if got := deps(g, s); len(got) != 0 {
+			t.Errorf("%s deps = %v, want none", s, got)
+		}
+	}
+	if !g.Independent("a", "b") || !g.Independent("b", "c") || !g.Independent("a", "c") {
+		t.Errorf("a, b and c should be pairwise independent")
 	}
 }
 
