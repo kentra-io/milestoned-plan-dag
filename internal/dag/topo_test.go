@@ -75,6 +75,23 @@ milestones:
 	}
 }
 
+// Two roots: ready milestones are emitted in ascending number order, so
+// api-docs (2) comes before worker (3).
+func TestTopoOrderIndependentChains(t *testing.T) {
+	g := Build(load(t, "independent-chains.yaml"))
+	got, err := g.TopoOrder()
+	if err != nil {
+		t.Fatalf("TopoOrder: %v", err)
+	}
+	want := []string{"api", "api-docs", "worker", "worker-docs"}
+	if !equal(got, want) {
+		t.Fatalf("TopoOrder = %v, want %v", got, want)
+	}
+	if !g.Independent("api-docs", "worker-docs") {
+		t.Errorf("the two sinks should be independent")
+	}
+}
+
 func equal(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
