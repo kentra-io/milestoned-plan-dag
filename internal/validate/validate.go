@@ -1,8 +1,9 @@
 // Package validate is the authoritative semantic validator for a plan. It runs
 // JSON-Schema shape validation first, then the semantic DAG guarantees a JSON
-// Schema cannot express: identity uniqueness, edge resolution, acyclicity, and
-// contract well-formedness (all rejections, naming the offender), plus the
-// non-fatal overlapping-write-paths warning for independent milestones.
+// Schema cannot express: the supported schema version, identity uniqueness,
+// edge resolution, acyclicity, and contract well-formedness (all rejections,
+// naming the offender), plus the non-fatal overlapping-write-paths warning
+// for independent milestones.
 package validate
 
 import (
@@ -26,6 +27,23 @@ type Result struct {
 // affect acceptance.
 func (r *Result) OK() bool { return len(r.Errors) == 0 }
 
+// SchemaVersion is the only plan format version this validator reads. 0.3.0
+// dropped the implicit edge on the preceding milestone, so an older plan
+// would lose its ordering without a word; it is rejected instead.
+const SchemaVersion = "0.3.0"
+
+// checkSchemaVersion rejects any plan not written for SchemaVersion.
+func checkSchemaVersion(p *plan.Plan, r *Result) {
+	if p.SchemaVersion == SchemaVersion {
+		return
+	}
+	r.Errors = append(r.Errors, fmt.Sprintf(
+		"schemaVersion %q is not supported: this milestoned-plan-dag reads %s plans. "+
+			"Since 0.3.0 a milestone without depends-on has no dependencies; give every milestone "+
+			"that must wait for another an explicit depends-on, then set schemaVersion: %s",
+		p.SchemaVersion, SchemaVersion, SchemaVersion))
+}
+
 // Validate shape-validates then semantically validates a raw plan YAML
 // document. It returns a Result carrying every fatal error and every warning;
 // the second return is non-nil only when the document cannot be parsed at all
@@ -46,6 +64,7 @@ func Validate(planYAML []byte) (*Result, error) {
 		return r, err
 	}
 
+	checkSchemaVersion(p, r)
 	checkIdentity(p, r)
 	checkContracts(p, r)
 	dangling := checkDependencies(p, r)

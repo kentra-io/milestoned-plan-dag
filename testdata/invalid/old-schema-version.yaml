@@ -1,0 +1,13 @@
+schemaVersion: 0.2.0
+milestones:
+  - number: 1
+    slug: a
+    goal: Foundation
+    deliverables: The shared foundation.
+    contract:
+      check: none
+      criteria: Foundation is in place.
+      paths:
+        - internal/foundation/**
+    steps:
+      - "[ ] lay the foundation"

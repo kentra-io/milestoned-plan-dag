@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.2.0/schema/plan.schema.json",
+  "$id": "https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.3.0/schema/plan.schema.json",
   "title": "milestoned-plan-dag plan",
   "description": "A machine-first plan: a DAG of verifiable milestones. Shape validation only; the CLI is authoritative for semantic DAG rules.",
   "type": "object",
@@ -8,7 +8,7 @@
   "required": ["schemaVersion", "milestones"],
   "properties": {
     "schemaVersion": {
-      "description": "Semantic version without a v prefix, beginning at 0.1.0.",
+      "description": "Semantic version without a v prefix, currently 0.3.0.",
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     },

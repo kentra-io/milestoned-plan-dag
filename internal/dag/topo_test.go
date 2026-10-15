@@ -23,7 +23,7 @@ func TestTopoOrderBranchingIsDeterministic(t *testing.T) {
 // depending only on 1, 2 must precede 3 even if 3 is authored first.
 func TestTopoOrderTieBreaksByNumberNotDocumentOrder(t *testing.T) {
 	g := Build(loadInline(t, `
-schemaVersion: 0.1.0
+schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: root
@@ -55,7 +55,7 @@ milestones:
 
 func TestTopoOrderRejectsACycle(t *testing.T) {
 	g := Build(loadInline(t, `
-schemaVersion: 0.1.0
+schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: x
@@ -72,6 +72,23 @@ milestones:
 `))
 	if _, err := g.TopoOrder(); err == nil {
 		t.Fatal("TopoOrder should error on a cycle, got nil")
+	}
+}
+
+// Two roots: ready milestones are emitted in ascending number order, so
+// api-docs (2) comes before worker (3).
+func TestTopoOrderIndependentChains(t *testing.T) {
+	g := Build(load(t, "independent-chains.yaml"))
+	got, err := g.TopoOrder()
+	if err != nil {
+		t.Fatalf("TopoOrder: %v", err)
+	}
+	want := []string{"api", "api-docs", "worker", "worker-docs"}
+	if !equal(got, want) {
+		t.Fatalf("TopoOrder = %v, want %v", got, want)
+	}
+	if !g.Independent("api-docs", "worker-docs") {
+		t.Errorf("the two sinks should be independent")
 	}
 }
 

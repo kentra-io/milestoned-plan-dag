@@ -135,6 +135,20 @@ func TestEmptyCriteriaRejected(t *testing.T) {
 	}
 }
 
+// A plan written before 0.3.0 relied on the implicit edge on the preceding
+// milestone, which no longer exists; reading it would silently drop its
+// ordering, so validate rejects it and says how to migrate.
+func TestOldSchemaVersionRejected(t *testing.T) {
+	r := validate(t, "invalid/old-schema-version.yaml")
+	if r.OK() {
+		t.Fatal("a 0.2.0 plan should be rejected")
+	}
+	e := joinErrs(r)
+	if !strings.Contains(e, `schemaVersion "0.2.0" is not supported`) || !strings.Contains(e, "depends-on") {
+		t.Errorf("error should name the version and the depends-on migration, got: %s", e)
+	}
+}
+
 // --- Warn case --------------------------------------------------------------
 
 // plan-validation "Overlapping paths on independent milestones warn but pass".
@@ -171,5 +185,29 @@ func TestGlobsOverlap(t *testing.T) {
 		if got := globsOverlap(c.a, c.b); got != c.want {
 			t.Errorf("globsOverlap(%q, %q) = %v, want %v", c.a, c.b, got, c.want)
 		}
+	}
+}
+
+// Two independent chains with no joining milestone are a valid DAG: several
+// roots and several sinks, nothing forced to merge.
+func TestIndependentChainsAccepted(t *testing.T) {
+	r := validate(t, "valid/independent-chains.yaml")
+	if !r.OK() {
+		t.Fatalf("independent chains should be accepted, errors: %s", joinErrs(r))
+	}
+	if len(r.Warnings) != 0 {
+		t.Errorf("disjoint paths should not warn, got: %s", joinWarns(r))
+	}
+}
+
+// Two roots are independent, so overlapping paths between them warn.
+func TestOverlappingRootsWarn(t *testing.T) {
+	r := validate(t, "warn/overlapping-roots.yaml")
+	if !r.OK() {
+		t.Fatalf("overlapping roots should still pass, errors: %s", joinErrs(r))
+	}
+	w := joinWarns(r)
+	if !strings.Contains(w, "left") || !strings.Contains(w, "right") || !strings.Contains(w, "internal/shared/**") {
+		t.Errorf("warning should name left, right and the glob, got: %s", w)
 	}
 }

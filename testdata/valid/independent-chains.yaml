@@ -1,0 +1,50 @@
+schemaVersion: 0.3.0
+milestones:
+  - number: 1
+    slug: api
+    goal: API
+    deliverables: The API.
+    contract:
+      check: go test ./...
+      criteria: The API answers.
+      paths:
+        - internal/api/**
+    steps:
+      - "[ ] build the api"
+  - number: 2
+    slug: api-docs
+    goal: API docs
+    deliverables: The API docs.
+    contract:
+      check: none
+      criteria: The docs describe every route.
+      paths:
+        - docs/api/**
+    depends-on:
+      - api
+    steps:
+      - "[ ] write the api docs"
+  - number: 3
+    slug: worker
+    goal: Worker
+    deliverables: The worker.
+    contract:
+      check: go test ./...
+      criteria: The worker drains its queue.
+      paths:
+        - internal/worker/**
+    steps:
+      - "[ ] build the worker"
+  - number: 4
+    slug: worker-docs
+    goal: Worker docs
+    deliverables: The worker docs.
+    contract:
+      check: none
+      criteria: The docs describe the queue.
+      paths:
+        - docs/worker/**
+    depends-on:
+      - worker
+    steps:
+      - "[ ] write the worker docs"

@@ -19,8 +19,8 @@ func loadFixture(t *testing.T, name string) *Plan {
 // plan-schema: "A plan stamps its schema version".
 func TestSchemaVersionRoundTrips(t *testing.T) {
 	p := loadFixture(t, "sequential.yaml")
-	if p.SchemaVersion != "0.1.0" {
-		t.Fatalf("schemaVersion = %q, want 0.1.0", p.SchemaVersion)
+	if p.SchemaVersion != "0.3.0" {
+		t.Fatalf("schemaVersion = %q, want 0.3.0", p.SchemaVersion)
 	}
 }
 
@@ -151,7 +151,7 @@ func TestDeriveSlug(t *testing.T) {
 }
 
 func TestNonCheckboxStepRejected(t *testing.T) {
-	_, err := Load([]byte(`schemaVersion: 0.1.0
+	_, err := Load([]byte(`schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: bad
