@@ -23,7 +23,7 @@ func TestTopoOrderBranchingIsDeterministic(t *testing.T) {
 // depending only on 1, 2 must precede 3 even if 3 is authored first.
 func TestTopoOrderTieBreaksByNumberNotDocumentOrder(t *testing.T) {
 	g := Build(loadInline(t, `
-schemaVersion: 0.1.0
+schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: root
@@ -55,7 +55,7 @@ milestones:
 
 func TestTopoOrderRejectsACycle(t *testing.T) {
 	g := Build(loadInline(t, `
-schemaVersion: 0.1.0
+schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: x

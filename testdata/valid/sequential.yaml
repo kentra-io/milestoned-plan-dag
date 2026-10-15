@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=../../schema/plan.schema.json
-schemaVersion: 0.1.0
+schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: scaffold
@@ -23,6 +23,8 @@ milestones:
       criteria: The model round-trips and the schema shape-validates fixtures.
       paths:
         - internal/**
+    depends-on:
+      - scaffold
     steps:
       - "[x] define the types"
       - "[ ] write the loader"
@@ -35,6 +37,8 @@ milestones:
       criteria: Cycles, dangling edges, and duplicates are rejected by name.
       paths:
         - internal/validate/**
+    depends-on:
+      - model
     steps:
       - "[ ] resolve the edge set"
       - "[ ] reject cycles"

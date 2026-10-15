@@ -1,11 +1,10 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.2.0/schema/plan.schema.json
 #
-# A small worked example exercising: explicit slugs, an implicit-chain edge
-# (milestone 2 declares no depends-on, so it inherits an edge on milestone 1),
-# a branching + merging DAG, named-test criteria against one standard check,
-# both contract "conscious escapes" (check: none and paths: []), and a mix of
-# done/not-done checkbox steps.
-schemaVersion: 0.2.0
+# A small worked example exercising: explicit slugs, an explicit edge on the
+# preceding milestone, a branching + merging DAG, named-test criteria against
+# one standard check, both contract "conscious escapes" (check: none and
+# paths: []), and a mix of done/not-done checkbox steps.
+schemaVersion: 0.3.0
 description: |
   A worked example: a foundation milestone, then two independent branches
   that can run in parallel, then a join.
@@ -44,12 +43,13 @@ milestones:
     deliverables: A short design note explaining the chosen approach.
     contract:
       # No automated proof for a design note — a conscious escape, not a
-      # default. Declares no depends-on, so it implicitly follows milestone 1
-      # (scaffold) in document order.
+      # default.
       check: none
       criteria: The note explains the trade-off clearly enough for a reviewer to judge.
       paths:
         - docs/**
+    depends-on:
+      - scaffold
     steps:
       - "[ ] write the design note"
 

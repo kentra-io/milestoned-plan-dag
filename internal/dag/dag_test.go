@@ -77,7 +77,7 @@ func TestNoCycleForDAG(t *testing.T) {
 }
 
 func TestCycleDetectedAndNamed(t *testing.T) {
-	g := Build(loadInline(t, `schemaVersion: 0.1.0
+	g := Build(loadInline(t, `schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: a
@@ -116,7 +116,7 @@ func TestReachableNotSelfForAcyclic(t *testing.T) {
 // a depends-on edge resolves by slug regardless of the target's document
 // position / number.
 func TestSlugPositionIndependent(t *testing.T) {
-	early := Build(loadInline(t, `schemaVersion: 0.1.0
+	early := Build(loadInline(t, `schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: base
@@ -138,7 +138,7 @@ milestones:
 `))
 	// parse-dag moved earlier (now number 1, first in document); consumer's
 	// depends-on: [parse-dag] must still resolve.
-	moved := Build(loadInline(t, `schemaVersion: 0.1.0
+	moved := Build(loadInline(t, `schemaVersion: 0.3.0
 milestones:
   - number: 1
     slug: parse-dag
