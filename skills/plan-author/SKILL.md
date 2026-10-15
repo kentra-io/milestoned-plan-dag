@@ -83,7 +83,7 @@ types, shared files and dependency pins in a milestone both depend on.
 ## Top-level shape
 
 ```yaml
-schemaVersion: 0.2.0
+schemaVersion: 0.3.0
 description: |          # optional — context every milestone shares
   ...
 rules:                  # optional — references every milestone loads
@@ -93,7 +93,7 @@ milestones:
     ...
 ```
 
-- `schemaVersion` — semver, no `v` prefix. The current format version is `0.2.0`.
+- `schemaVersion` — semver, no `v` prefix. The current format version is `0.3.0`; `validate` rejects any other.
 - `description` — optional markdown: context every milestone shares.
 - `rules` — optional list of references (skill names or repo paths) every
   milestone loads.
@@ -125,7 +125,7 @@ what stays stable if milestones are reordered or renumbered later. You may omit
 `slug` and let the loader derive one from `goal`; give an explicit `slug` when
 you want a shorter or more stable name than the derived one.
 
-### The DAG and the implicit-chain fallback
+### The DAG
 
 Milestones form a DAG via `depends-on` (a list of slugs):
 
@@ -134,18 +134,18 @@ depends-on:
   - some-earlier-slug
 ```
 
-**A milestone with no `depends-on` gets an implicit edge on the immediately
-preceding milestone** (in document order). This means:
+Every edge is written out. **A milestone without `depends-on` is a root** — it
+can start at once:
 
-- A plan where no milestone ever declares `depends-on` is simply a **sequential
-  chain** — the degenerate, single-branch DAG. This is the common case; most
-  plans don't need explicit edges at all.
-- Declaring `depends-on` on one or more milestones turns the plan into a
-  **branching DAG** — e.g. two milestones can both depend on the same earlier
-  "foundation" milestone and then proceed independently of each other.
+- Milestones that can start in parallel, such as two independent foundations,
+  each declare no `depends-on`.
+- A milestone that needs another's output lists that milestone's slug. A
+  sequential plan lists the predecessor on every milestone after the first.
+- A plan may end in several sinks; nothing requires a joining milestone.
 
 Validation rejects: dangling edges (a `depends-on` slug nothing defines) and
-cycles (named by the offending milestone chain).
+cycles (named by the offending milestone chain), and a `schemaVersion` other
+than `0.3.0`.
 
 ### The contract: `check` / `criteria` / `paths`
 
@@ -242,7 +242,7 @@ text.
    you validate with (`milestoned-plan-dag --version`):
 
    ```yaml
-   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.2.0/schema/plan.schema.json
+   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.3.0/schema/plan.schema.json
    ```
 
    The tag matters. The CLI validates against the schema **embedded in the
@@ -264,7 +264,7 @@ text.
 
 3. **Resolve**, once the plan validates, to see the machine-readable
    projection — every milestone plus the authoritative `depends_on` edges
-   (implicit edges made explicit) and the computed topological `order`:
+   (exactly the declared edges, `[]` for a root) and the computed topological `order`:
 
    ```
    milestoned-plan-dag resolve plan.yaml

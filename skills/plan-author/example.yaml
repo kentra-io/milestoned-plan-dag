@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.2.0/schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.3.0/schema/plan.schema.json
 #
 # A small worked example exercising: explicit slugs, an explicit edge on the
 # preceding milestone, a branching + merging DAG, named-test criteria against

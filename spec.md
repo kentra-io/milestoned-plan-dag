@@ -22,10 +22,10 @@ of the milestone title when omitted.
 ### Dependency edges form a DAG
 A milestone MAY declare `depends-on` listing the slugs of milestones that MUST
 complete before it. The relation is a directed acyclic graph of "must complete
-before" edges; `depends-on` is the only edge type. A milestone that declares no
-`depends-on` inherits an implicit dependency on the immediately preceding
-milestone in document order — so a plan with no explicit edges is a sequential
-chain, and an existing sequential plan stays valid unchanged.
+before" edges; `depends-on` is the only edge type, and no edge is inferred from
+document order. A milestone that declares no `depends-on` (or an empty one) is
+a root: it can start at once. A plan MAY have several roots and several sinks;
+nothing requires a joining milestone. A sequential plan writes each edge out.
 
 ### Every milestone carries a verification contract
 Every milestone SHALL carry a verification `contract` with three fields:
@@ -42,8 +42,9 @@ a plan as complete while tracked steps remain unchecked.
 
 ### The plan declares a schema version
 A plan SHALL declare a `schemaVersion` using semantic versioning without a `v`
-prefix, beginning at `0.1.0`, so the format can evolve without silently breaking
-consumers.
+prefix, so the format can evolve without silently breaking consumers. The
+current version is `0.3.0`; `validate` rejects any other, because a plan
+written for 0.1.0 or 0.2.0 relied on implicit edges that no longer exist.
 
 ### Optional structured detail slots
 The schema reserves optional slots that let a plan carry file-specific detail
@@ -57,6 +58,7 @@ paths); a milestone's step may span several lines.
 
 `validate` runs JSON-Schema shape validation, then semantic validation. It
 rejects (non-zero exit, naming the offender):
+- a `schemaVersion` other than the current one (`0.3.0`);
 - a `depends-on` cycle (a valid plan always admits at least one topological order);
 - a `depends-on` entry referencing a slug no milestone defines (dangling edge);
 - two milestones sharing a `slug` or a `number` (duplicate identity);
