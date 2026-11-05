@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=../../schema/plan.schema.json
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: scaffold
@@ -11,9 +11,6 @@ milestones:
       paths:
         - go.mod
         - cmd/**
-    steps:
-      - "[x] go mod init"
-      - "[x] add the CLI dispatch skeleton"
   - number: 2
     slug: model
     goal: Define the plan model and loader
@@ -25,9 +22,6 @@ milestones:
         - internal/**
     depends-on:
       - scaffold
-    steps:
-      - "[x] define the types"
-      - "[ ] write the loader"
   - number: 3
     slug: validate
     goal: Implement the validate command
@@ -39,6 +33,3 @@ milestones:
         - internal/validate/**
     depends-on:
       - model
-    steps:
-      - "[ ] resolve the edge set"
-      - "[ ] reject cycles"

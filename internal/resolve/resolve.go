@@ -41,7 +41,6 @@ type MilestoneProjection struct {
 	Rules        []string     `yaml:"rules,omitempty"`
 	Deliverables Deliverables `yaml:"deliverables"`
 	Contract     Contract     `yaml:"contract"`
-	Steps        []Step       `yaml:"steps"`
 	// DependsOn is the milestone's resolved incoming edge set — exactly its
 	// declared depends-on — always present, emitted as `[]` for a root.
 	DependsOn []string `yaml:"depends_on"`
@@ -76,14 +75,6 @@ type TestCase struct {
 	Given string `yaml:"given,omitempty"`
 	When  string `yaml:"when,omitempty"`
 	Then  string `yaml:"then,omitempty"`
-}
-
-// Step is one checkbox-tracked breakdown item, with its checkbox state
-// exposed as a field (the source ` [ ]`/`[x]` marker is not round-tripped).
-type Step struct {
-	Text  string   `yaml:"text"`
-	Done  bool     `yaml:"done"`
-	Files []string `yaml:"files,omitempty"`
 }
 
 // Resolve builds the projection for an already-validated plan: it resolves
@@ -136,7 +127,6 @@ func milestoneProjection(m plan.Milestone, g *dag.Graph) MilestoneProjection {
 		Rules:        m.Rules,
 		Deliverables: deliverablesProjection(m.Deliverables),
 		Contract:     contractProjection(m.Contract),
-		Steps:        stepsProjection(m.Steps),
 		DependsOn:    dependsOn,
 	}
 }
@@ -173,16 +163,4 @@ func criteriaProjection(c plan.Criteria) Criteria {
 		Text:  c.Text,
 		Cases: cases,
 	}
-}
-
-func stepsProjection(steps []plan.Step) []Step {
-	out := make([]Step, 0, len(steps))
-	for _, s := range steps {
-		out = append(out, Step{
-			Text:  s.Text,
-			Done:  s.Done,
-			Files: s.Files,
-		})
-	}
-	return out
 }

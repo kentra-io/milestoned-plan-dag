@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: api
@@ -9,8 +9,6 @@ milestones:
       criteria: The API answers.
       paths:
         - internal/api/**
-    steps:
-      - "[ ] build the api"
   - number: 2
     slug: api-docs
     goal: API docs
@@ -22,8 +20,6 @@ milestones:
         - docs/api/**
     depends-on:
       - api
-    steps:
-      - "[ ] write the api docs"
   - number: 3
     slug: worker
     goal: Worker
@@ -33,8 +29,6 @@ milestones:
       criteria: The worker drains its queue.
       paths:
         - internal/worker/**
-    steps:
-      - "[ ] build the worker"
   - number: 4
     slug: worker-docs
     goal: Worker docs
@@ -46,5 +40,3 @@ milestones:
         - docs/worker/**
     depends-on:
       - worker
-    steps:
-      - "[ ] write the worker docs"

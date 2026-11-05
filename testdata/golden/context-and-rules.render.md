@@ -26,11 +26,3 @@ paths:
   - src/main/java/greeter/**
   - src/test/java/greeter/**
 ```
-
-**Steps**
-
-- [ ] Write the failing test
-  ```java
-  assertThat(new Greeter().greet("Ada")).isEqualTo("Hello, Ada");
-  ```
-- [ ] Implement Greeter.greet

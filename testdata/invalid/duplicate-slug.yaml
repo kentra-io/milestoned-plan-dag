@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: parse-dag
@@ -9,8 +9,6 @@ milestones:
       criteria: First is done.
       paths:
         - internal/first/**
-    steps:
-      - "[ ] do the first thing"
   - number: 2
     slug: parse-dag
     goal: Second milestone claiming the same parse-dag slug
@@ -20,5 +18,3 @@ milestones:
       criteria: Second is done.
       paths:
         - internal/second/**
-    steps:
-      - "[ ] do the second thing"

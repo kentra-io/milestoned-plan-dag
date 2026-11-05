@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 description: |
   Adds a greeting endpoint. Every milestone follows the hexagonal layout.
 rules:
@@ -27,10 +27,3 @@ milestones:
       paths:
         - src/main/java/greeter/**
         - src/test/java/greeter/**
-    steps:
-      - |
-        [ ] Write the failing test
-        ```java
-        assertThat(new Greeter().greet("Ada")).isEqualTo("Hello, Ada");
-        ```
-      - "[ ] Implement Greeter.greet"

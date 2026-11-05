@@ -1,10 +1,10 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.3.0/schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.4.0/schema/plan.schema.json
 #
 # A small worked example exercising: explicit slugs, an explicit edge on the
 # preceding milestone, a branching + merging DAG, named-test criteria against
-# one standard check, both contract "conscious escapes" (check: none and
-# paths: []), and a mix of done/not-done checkbox steps.
-schemaVersion: 0.3.0
+# one standard check, and both contract "conscious escapes" (check: none and
+# paths: []).
+schemaVersion: 0.4.0
 description: |
   A worked example: a foundation milestone, then two independent branches
   that can run in parallel, then a join.
@@ -33,9 +33,6 @@ milestones:
       paths:
         - go.mod
         - cmd/**
-    steps:
-      - "[x] go mod init"
-      - "[x] add the CLI dispatch skeleton"
 
   - number: 2
     slug: design-note
@@ -50,8 +47,6 @@ milestones:
         - docs/**
     depends-on:
       - scaffold
-    steps:
-      - "[ ] write the design note"
 
   - number: 3
     slug: widget-api
@@ -78,9 +73,6 @@ milestones:
         - internal/widget/**
     depends-on:
       - scaffold
-    steps:
-      - "[ ] define the API surface"
-      - "[ ] implement it"
 
   - number: 4
     slug: review-gate
@@ -99,5 +91,3 @@ milestones:
     depends-on:
       - design-note
       - widget-api
-    steps:
-      - "[ ] confirm the design note and the widget API are both in place"

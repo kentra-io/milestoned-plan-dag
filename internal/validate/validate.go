@@ -29,8 +29,9 @@ func (r *Result) OK() bool { return len(r.Errors) == 0 }
 
 // SchemaVersion is the only plan format version this validator reads. 0.3.0
 // dropped the implicit edge on the preceding milestone, so an older plan
-// would lose its ordering without a word; it is rejected instead.
-const SchemaVersion = "0.3.0"
+// would lose its ordering without a word; 0.4.0 dropped milestone steps, so
+// an older plan would lose its step detail. Older plans are rejected instead.
+const SchemaVersion = "0.4.0"
 
 // checkSchemaVersion rejects any plan not written for SchemaVersion.
 func checkSchemaVersion(p *plan.Plan, r *Result) {
@@ -40,7 +41,8 @@ func checkSchemaVersion(p *plan.Plan, r *Result) {
 	r.Errors = append(r.Errors, fmt.Sprintf(
 		"schemaVersion %q is not supported: this milestoned-plan-dag reads %s plans. "+
 			"Since 0.3.0 a milestone without depends-on has no dependencies; give every milestone "+
-			"that must wait for another an explicit depends-on, then set schemaVersion: %s",
+			"that must wait for another an explicit depends-on. Since 0.4.0 a milestone has no steps; "+
+			"move that detail into its description. Then set schemaVersion: %s",
 		p.SchemaVersion, SchemaVersion, SchemaVersion))
 }
 

@@ -19,26 +19,8 @@ func loadFixture(t *testing.T, name string) *Plan {
 // plan-schema: "A plan stamps its schema version".
 func TestSchemaVersionRoundTrips(t *testing.T) {
 	p := loadFixture(t, "sequential.yaml")
-	if p.SchemaVersion != "0.3.0" {
-		t.Fatalf("schemaVersion = %q, want 0.3.0", p.SchemaVersion)
-	}
-}
-
-// plan-schema: "Steps carry checkbox state".
-func TestStepsCarryCheckboxState(t *testing.T) {
-	p := loadFixture(t, "sequential.yaml")
-	m2 := p.Milestones[1] // slug: model — steps [x] then [ ]
-	if len(m2.Steps) != 2 {
-		t.Fatalf("milestone 2 steps = %d, want 2", len(m2.Steps))
-	}
-	if !m2.Steps[0].Done {
-		t.Errorf("step 0 done = false, want true ([x])")
-	}
-	if m2.Steps[1].Done {
-		t.Errorf("step 1 done = true, want false ([ ])")
-	}
-	if m2.Steps[0].Text != "define the types" {
-		t.Errorf("step 0 text = %q, want %q", m2.Steps[0].Text, "define the types")
+	if p.SchemaVersion != "0.4.0" {
+		t.Fatalf("schemaVersion = %q, want 0.4.0", p.SchemaVersion)
 	}
 }
 
@@ -58,11 +40,6 @@ func TestOptionalSlotsAbsentLoads(t *testing.T) {
 	if m.Contract.Criteria.Text == "" {
 		t.Errorf("plain criteria text should be populated")
 	}
-	for i, s := range m.Steps {
-		if len(s.Files) != 0 {
-			t.Errorf("step %d should have no files, got %v", i, s.Files)
-		}
-	}
 }
 
 func TestOptionalSlotsPresent(t *testing.T) {
@@ -79,12 +56,6 @@ func TestOptionalSlotsPresent(t *testing.T) {
 	}
 	if m.Contract.Criteria.Cases[0].Then == "" {
 		t.Errorf("test case then should be populated")
-	}
-	if len(m.Steps[0].Files) != 1 || m.Steps[0].Files[0] != "internal/plan/types.go" {
-		t.Errorf("per-step files = %v", m.Steps[0].Files)
-	}
-	if !m.Steps[0].Done {
-		t.Errorf("mapping step [x] should be done")
 	}
 }
 
@@ -150,24 +121,6 @@ func TestDeriveSlug(t *testing.T) {
 	}
 }
 
-func TestNonCheckboxStepRejected(t *testing.T) {
-	_, err := Load([]byte(`schemaVersion: 0.3.0
-milestones:
-  - number: 1
-    slug: bad
-    goal: bad steps
-    contract:
-      check: none
-      criteria: x
-      paths: []
-    steps:
-      - just a plain bullet
-`))
-	if err == nil {
-		t.Fatal("expected a plain (non-checkbox) step to be rejected at load")
-	}
-}
-
 // plan-schema: "A plan and its milestones carry context and rules".
 func TestContextAndRulesLoad(t *testing.T) {
 	p := loadFixture(t, "context-and-rules.yaml")
@@ -183,9 +136,5 @@ func TestContextAndRulesLoad(t *testing.T) {
 	}
 	if len(m.Rules) != 1 || m.Rules[0] != "docs/naming.md" {
 		t.Errorf("milestone rules = %v", m.Rules)
-	}
-	want := "Write the failing test\n```java\nassertThat(new Greeter().greet(\"Ada\")).isEqualTo(\"Hello, Ada\");\n```"
-	if m.Steps[0].Text != want {
-		t.Errorf("multi-line step text = %q, want %q", m.Steps[0].Text, want)
 	}
 }

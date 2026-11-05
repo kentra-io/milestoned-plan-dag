@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: verify-only
@@ -8,5 +8,3 @@ milestones:
       check: go test ./...
       criteria: The existing suite passes with no diff introduced.
       paths: []
-    steps:
-      - "[ ] run the suite and confirm a clean tree"

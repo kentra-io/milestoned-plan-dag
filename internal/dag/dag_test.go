@@ -50,24 +50,21 @@ func TestExplicitChain(t *testing.T) {
 // plan-schema "A milestone without depends-on is a root": no edge is ever
 // inferred from document order, so several milestones can start at once.
 func TestNoDependsOnMeansRoot(t *testing.T) {
-	g := Build(loadInline(t, `schemaVersion: 0.3.0
+	g := Build(loadInline(t, `schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: a
     goal: a
     contract: {check: none, criteria: x, paths: []}
-    steps: ["[ ] s"]
   - number: 2
     slug: b
     goal: b
     contract: {check: none, criteria: x, paths: []}
-    steps: ["[ ] s"]
   - number: 3
     slug: c
     goal: c
     contract: {check: none, criteria: x, paths: []}
     depends-on: []
-    steps: ["[ ] s"]
 `))
 	for _, s := range []string{"a", "b", "c"} {
 		if got := deps(g, s); len(got) != 0 {
@@ -109,20 +106,18 @@ func TestNoCycleForDAG(t *testing.T) {
 }
 
 func TestCycleDetectedAndNamed(t *testing.T) {
-	g := Build(loadInline(t, `schemaVersion: 0.3.0
+	g := Build(loadInline(t, `schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: a
     goal: a
     contract: {check: none, criteria: x, paths: []}
     depends-on: [b]
-    steps: ["[ ] s"]
   - number: 2
     slug: b
     goal: b
     contract: {check: none, criteria: x, paths: []}
     depends-on: [a]
-    steps: ["[ ] s"]
 `))
 	c := g.Cycle()
 	if len(c) != 2 {
@@ -148,47 +143,41 @@ func TestReachableNotSelfForAcyclic(t *testing.T) {
 // a depends-on edge resolves by slug regardless of the target's document
 // position / number.
 func TestSlugPositionIndependent(t *testing.T) {
-	early := Build(loadInline(t, `schemaVersion: 0.3.0
+	early := Build(loadInline(t, `schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: base
     goal: base
     contract: {check: none, criteria: x, paths: []}
-    steps: ["[ ] s"]
   - number: 2
     slug: parse-dag
     goal: parse
     contract: {check: none, criteria: x, paths: []}
     depends-on: [base]
-    steps: ["[ ] s"]
   - number: 3
     slug: consumer
     goal: consume
     contract: {check: none, criteria: x, paths: []}
     depends-on: [parse-dag]
-    steps: ["[ ] s"]
 `))
 	// parse-dag moved earlier (now number 1, first in document); consumer's
 	// depends-on: [parse-dag] must still resolve.
-	moved := Build(loadInline(t, `schemaVersion: 0.3.0
+	moved := Build(loadInline(t, `schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: parse-dag
     goal: parse
     contract: {check: none, criteria: x, paths: []}
-    steps: ["[ ] s"]
   - number: 2
     slug: base
     goal: base
     contract: {check: none, criteria: x, paths: []}
     depends-on: [parse-dag]
-    steps: ["[ ] s"]
   - number: 3
     slug: consumer
     goal: consume
     contract: {check: none, criteria: x, paths: []}
     depends-on: [parse-dag]
-    steps: ["[ ] s"]
 `))
 	for _, g := range []*Graph{early, moved} {
 		if !g.Defined("parse-dag") {

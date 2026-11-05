@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: plain
@@ -9,6 +9,3 @@ milestones:
       criteria: The plain criteria is a single string, not a test-case list.
       paths:
         - internal/**
-    steps:
-      - "[ ] do the first thing"
-      - "[x] do the second thing"

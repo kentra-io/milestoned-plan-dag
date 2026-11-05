@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: alpha
@@ -9,8 +9,6 @@ milestones:
       criteria: Alpha is done.
       paths:
         - internal/alpha/**
-    steps:
-      - "[ ] do alpha"
   - number: 1
     slug: beta
     goal: Second milestone reusing number 1
@@ -20,5 +18,3 @@ milestones:
       criteria: Beta is done.
       paths:
         - internal/beta/**
-    steps:
-      - "[ ] do beta"

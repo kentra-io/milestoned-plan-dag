@@ -1,8 +1,6 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: no-contract
     goal: A milestone that declares no contract block
     deliverables: A milestone missing its mandatory verification contract.
-    steps:
-      - "[ ] do a thing with no way to verify it"

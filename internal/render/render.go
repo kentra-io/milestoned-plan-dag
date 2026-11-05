@@ -1,7 +1,7 @@
 // Package render projects a plan into a read-only human markdown view,
 // mirroring the authoring tasks.md shape (plan-projection: "render emits a
-// read-only human markdown view (Goal / Deliverables / Validation contract /
-// checkbox steps) from the same model"). Nothing in this primitive ever
+// read-only human markdown view (Goal / Deliverables / Validation contract)
+// from the same model"). Nothing in this primitive ever
 // parses this markdown back — it is a one-way projection generated straight
 // from the typed plan model, never from the resolve YAML output.
 package render
@@ -16,8 +16,8 @@ import (
 // Render produces the full markdown document for a plan: an optional "##
 // Plan" preamble (the plan-level description and rules), then one "##
 // Milestone N: <goal>" section per milestone, in document order, each
-// carrying its Goal, optional Description and Rules, Deliverables, a fenced
-// contract block, and its steps as `- [ ]`/`- [x]` checkboxes.
+// carrying its Goal, optional Description and Rules, Deliverables, and a
+// fenced contract block.
 func Render(p *plan.Plan) (string, error) {
 	var b strings.Builder
 	if p.Description != "" || len(p.Rules) > 0 {
@@ -57,10 +57,7 @@ func renderMilestone(b *strings.Builder, m plan.Milestone) {
 	b.WriteString("**Validation contract**\n\n")
 	b.WriteString("```contract\n")
 	renderContract(b, m.Contract)
-	b.WriteString("```\n\n")
-
-	b.WriteString("**Steps**\n\n")
-	renderSteps(b, m.Steps)
+	b.WriteString("```\n")
 }
 
 // renderDeliverables renders the prose-or-structured deliverables slot as a
@@ -116,26 +113,5 @@ func renderPathsList(b *strings.Builder, key string, paths []string) {
 	fmt.Fprintf(b, "%s:\n", key)
 	for _, path := range paths {
 		fmt.Fprintf(b, "  - %s\n", path)
-	}
-}
-
-// renderSteps writes one `- [ ]`/`- [x]` bullet per step. A multi-line step
-// keeps its first line on the bullet and indents every following line by two
-// spaces, so the whole step — code blocks included — stays one list item.
-func renderSteps(b *strings.Builder, steps []plan.Step) {
-	for _, s := range steps {
-		mark := " "
-		if s.Done {
-			mark = "x"
-		}
-		lines := strings.Split(s.Text, "\n")
-		fmt.Fprintf(b, "- [%s] %s\n", mark, lines[0])
-		for _, line := range lines[1:] {
-			if line == "" {
-				b.WriteString("\n")
-				continue
-			}
-			fmt.Fprintf(b, "  %s\n", line)
-		}
 	}
 }

@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: unverifiable
@@ -9,5 +9,3 @@ milestones:
       criteria: The design note explains the trade-off clearly enough to judge.
       paths:
         - docs/**
-    steps:
-      - "[ ] write the design note"

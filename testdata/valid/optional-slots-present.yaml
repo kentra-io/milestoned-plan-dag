@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: rich-milestone
@@ -18,16 +18,9 @@ milestones:
           given: a plan authored against the initial format
           when: it is loaded
           then: it declares schemaVersion 0.1.0
-        - name: steps carry checkbox state
-          given: a milestone with checkbox steps
+        - name: structured deliverables round-trip
+          given: a milestone with create, modify and test deliverables
           when: it is loaded
-          then: each step's done flag reflects its [ ] or [x] marker
+          then: each list is populated
       paths:
         - internal/plan/**
-    steps:
-      - text: "[x] define the model"
-        files:
-          - internal/plan/types.go
-      - text: "[ ] write the loader"
-        files:
-          - internal/plan/load.go

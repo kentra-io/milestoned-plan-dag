@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.3.0/schema/plan.schema.json",
+  "$id": "https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.4.0/schema/plan.schema.json",
   "title": "milestoned-plan-dag plan",
   "description": "A machine-first plan: a DAG of verifiable milestones. Shape validation only; the CLI is authoritative for semantic DAG rules.",
   "type": "object",
@@ -8,7 +8,7 @@
   "required": ["schemaVersion", "milestones"],
   "properties": {
     "schemaVersion": {
-      "description": "Semantic version without a v prefix, currently 0.3.0.",
+      "description": "Semantic version without a v prefix, currently 0.4.0.",
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     },
@@ -37,7 +37,7 @@
     "milestone": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["number", "goal", "contract", "steps"],
+      "required": ["number", "goal", "contract"],
       "properties": {
         "number": { "type": "integer", "minimum": 1 },
         "slug": { "$ref": "#/$defs/slug" },
@@ -46,11 +46,6 @@
         "rules": { "$ref": "#/$defs/rules" },
         "deliverables": { "$ref": "#/$defs/deliverables" },
         "contract": { "$ref": "#/$defs/contract" },
-        "steps": {
-          "type": "array",
-          "minItems": 1,
-          "items": { "$ref": "#/$defs/step" }
-        },
         "depends-on": {
           "type": "array",
           "items": { "$ref": "#/$defs/slug" }
@@ -106,20 +101,6 @@
               "when": { "type": "string" },
               "then": { "type": "string" }
             }
-          }
-        }
-      ]
-    },
-    "step": {
-      "oneOf": [
-        { "type": "string", "pattern": "^\\[[ xX]\\]" },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["text"],
-          "properties": {
-            "text": { "type": "string", "pattern": "^\\[[ xX]\\]" },
-            "files": { "type": "array", "items": { "type": "string" } }
           }
         }
       ]

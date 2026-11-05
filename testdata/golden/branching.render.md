@@ -13,10 +13,6 @@ paths:
   - internal/foundation/**
 ```
 
-**Steps**
-
-- [x] lay the foundation
-
 ## Milestone 2: First branch
 
 **Goal** — First branch
@@ -32,10 +28,6 @@ paths:
   - internal/b/**
 ```
 
-**Steps**
-
-- [ ] build branch b
-
 ## Milestone 3: Second branch
 
 **Goal** — Second branch
@@ -50,7 +42,3 @@ criteria: Branch c works on top of the foundation.
 paths:
   - internal/c/**
 ```
-
-**Steps**
-
-- [ ] build branch c

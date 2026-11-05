@@ -8,7 +8,6 @@ package plan
 
 import (
 	"fmt"
-	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -42,7 +41,7 @@ type Milestone struct {
 	// Goal is the milestone's human label / intent.
 	Goal string `yaml:"goal"`
 	// Description is optional markdown: why this milestone exists and how it
-	// is meant to be built, beyond what deliverables and steps say.
+	// is meant to be built, beyond what deliverables say.
 	Description string `yaml:"description,omitempty"`
 	// Rules are references (skill names or repository paths) this milestone
 	// needs in addition to the plan-level rules.
@@ -52,8 +51,6 @@ type Milestone struct {
 	Deliverables Deliverables `yaml:"deliverables,omitempty"`
 	// Contract is the mandatory verification contract.
 	Contract Contract `yaml:"contract"`
-	// Steps are checkbox-tracked breakdown items.
-	Steps []Step `yaml:"steps"`
 	// DependsOn lists the slugs this milestone depends on. Absent or empty
 	// means none: the milestone is a root.
 	DependsOn []string `yaml:"depends-on,omitempty"`
@@ -138,56 +135,6 @@ func (c *Criteria) UnmarshalYAML(value *yaml.Node) error {
 	default:
 		return fmt.Errorf("criteria: expected plain-language text or a list of test cases, got %s", nodeKind(value.Kind))
 	}
-}
-
-// Step is one checkbox-tracked breakdown item. Done reflects [x]/[X]; Text is
-// the item text with the checkbox marker stripped. Files is the optional
-// per-step file reference (an optional structured detail slot).
-type Step struct {
-	Text  string   `yaml:"-"`
-	Done  bool     `yaml:"-"`
-	Files []string `yaml:"files,omitempty"`
-}
-
-// UnmarshalYAML accepts either a "[ ] text" / "[x] text" checkbox string or a
-// {text, files} mapping whose text carries the checkbox marker.
-func (s *Step) UnmarshalYAML(value *yaml.Node) error {
-	switch value.Kind {
-	case yaml.ScalarNode:
-		var raw string
-		if err := value.Decode(&raw); err != nil {
-			return err
-		}
-		return s.parseCheckbox(raw)
-	case yaml.MappingNode:
-		var aux struct {
-			Text  string   `yaml:"text"`
-			Files []string `yaml:"files"`
-		}
-		if err := value.Decode(&aux); err != nil {
-			return err
-		}
-		s.Files = aux.Files
-		return s.parseCheckbox(aux.Text)
-	default:
-		return fmt.Errorf("step: expected a checkbox string or a {text, files} mapping, got %s", nodeKind(value.Kind))
-	}
-}
-
-// parseCheckbox splits a "[ ]"/"[x]" prefix from the step text.
-func (s *Step) parseCheckbox(raw string) error {
-	t := strings.TrimSpace(raw)
-	switch {
-	case strings.HasPrefix(t, "[x]"), strings.HasPrefix(t, "[X]"):
-		s.Done = true
-		s.Text = strings.TrimSpace(t[3:])
-	case strings.HasPrefix(t, "[ ]"):
-		s.Done = false
-		s.Text = strings.TrimSpace(t[3:])
-	default:
-		return fmt.Errorf("step %q must be a checkbox item beginning with [ ] or [x]", raw)
-	}
-	return nil
 }
 
 // nodeKind renders a yaml.Kind for error messages.

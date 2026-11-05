@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     goal: Define the Plan Model!
@@ -8,5 +8,3 @@ milestones:
       criteria: The loader fills in a kebab slug when none is authored.
       paths:
         - internal/plan/**
-    steps:
-      - "[ ] define the model"

@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: left
@@ -9,8 +9,6 @@ milestones:
       criteria: Left is in place.
       paths:
         - internal/shared/**
-    steps:
-      - "[ ] build left"
   - number: 2
     slug: right
     goal: Right
@@ -20,5 +18,3 @@ milestones:
       criteria: Right is in place.
       paths:
         - internal/shared/**
-    steps:
-      - "[ ] build right"

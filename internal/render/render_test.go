@@ -17,11 +17,10 @@ func loadFixture(t *testing.T, path string) *plan.Plan {
 	return p
 }
 
-// TestRender_ShapeAndCheckboxes covers "render emits a read-only human
-// markdown view (checkbox steps + contract block) from the same model": a
-// heading per milestone, Goal, Deliverables, a contract block, and steps
-// rendered as - [ ] / - [x].
-func TestRender_ShapeAndCheckboxes(t *testing.T) {
+// TestRender_Shape covers "render emits a read-only human markdown view
+// (contract block) from the same model": a heading per milestone, Goal,
+// Deliverables, and a contract block.
+func TestRender_Shape(t *testing.T) {
 	p := loadFixture(t, "../../testdata/valid/branching.yaml")
 
 	out, err := Render(p)
@@ -37,12 +36,6 @@ func TestRender_ShapeAndCheckboxes(t *testing.T) {
 	}
 	if !strings.Contains(out, "**Deliverables** — The shared foundation both branches build on.") {
 		t.Fatalf("missing Deliverables line, got:\n%s", out)
-	}
-	if !strings.Contains(out, "- [x] lay the foundation") {
-		t.Fatalf("missing done checkbox, got:\n%s", out)
-	}
-	if !strings.Contains(out, "- [ ] build branch b") {
-		t.Fatalf("missing pending checkbox, got:\n%s", out)
 	}
 	if !strings.Contains(out, "check: none") {
 		t.Fatalf("missing contract check line, got:\n%s", out)
@@ -87,10 +80,8 @@ func TestRender_StructuredSlots(t *testing.T) {
 	}
 }
 
-// The plan preamble, milestone description and rules render, and a
-// multi-line step stays one list item: continuation lines are indented two
-// spaces so a fenced code block inside a step does not break the list.
-func TestRender_ContextRulesAndMultilineSteps(t *testing.T) {
+// The plan preamble, milestone description and rules render.
+func TestRender_ContextAndRules(t *testing.T) {
 	p := loadFixture(t, "../../testdata/valid/context-and-rules.yaml")
 
 	out, err := Render(p)
@@ -100,7 +91,6 @@ func TestRender_ContextRulesAndMultilineSteps(t *testing.T) {
 	for _, want := range []string{
 		"## Plan\n\nAdds a greeting endpoint. Every milestone follows the hexagonal layout.\n\n**Rules** — java-hexagonal, constitution/constitution.md\n\n## Milestone 1: Greeter domain service",
 		"**Goal** — Greeter domain service\n\n**Description**\n\nThe domain service the adapter in milestone 2 calls.\n\n**Rules** — docs/naming.md\n\n**Deliverables**",
-		"- [ ] Write the failing test\n  ```java\n  assertThat(new Greeter().greet(\"Ada\")).isEqualTo(\"Hello, Ada\");\n  ```\n- [ ] Implement Greeter.greet\n",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("render output missing:\n%s\n--- got:\n%s", want, out)
