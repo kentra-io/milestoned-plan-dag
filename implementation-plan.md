@@ -20,7 +20,7 @@ Define the canonical YAML plan format as typed Go plus a published draft-2020-12
 JSON Schema, and load + shape-validate a plan file. Adds `internal/plan/` (types
 and loader), `schema/plan.schema.json`, `internal/schema/` (embeds + shape
 validation), and `testdata/valid/` fixtures.
-- Realizes plan-schema: schemaVersion stamping, checkbox step state, optional
+- Realizes plan-schema: schemaVersion stamping, optional
   slots omittable.
 
 ## Milestone 3 — `validate`: DAG resolution, semantic checks, path-overlap warning

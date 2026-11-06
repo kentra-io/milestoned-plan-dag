@@ -2,7 +2,7 @@
 
 A framework-neutral, single-binary primitive for a **machine-first YAML plan
 format**: a plan is a **DAG of verifiable milestones**. Each milestone carries a
-stable slug, an ordinal number, a goal, deliverables, checkbox-tracked steps, and
+stable slug, an ordinal number, a goal, deliverables, and
 a mandatory verification **contract** (`check` / `criteria` / `paths`). Milestones
 declare dependencies with `depends-on`; a milestone without one is a root, so a
 plan can start several milestones at once, and a sequential plan writes each
@@ -49,7 +49,7 @@ read-only human markdown view.
 agent-agnostic authoring skill: it documents the full YAML grammar (milestone
 identity, the `depends-on` DAG of explicit edges, the mandatory
 `check`/`criteria`/`paths` contract and its conscious escapes, plan- and
-milestone-level `description` and `rules`, multi-line checkbox steps)
+milestone-level `description` and `rules`, the milestone as a mergeable deliverable)
 and the `validate` → `resolve`/`render` CLI workflow. See
 [`skills/plan-author/example.yaml`](./skills/plan-author/example.yaml) for a
 worked, validating branching plan.
@@ -59,7 +59,7 @@ inline completion and validation, pinned to the release tag matching your
 installed CLI (`milestoned-plan-dag --version`):
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.3.0/schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.4.0/schema/plan.schema.json
 ```
 
 This is an editor hint only — the CLI validates against the schema embedded in

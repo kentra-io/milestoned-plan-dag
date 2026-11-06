@@ -40,11 +40,8 @@ engineer with zero context for this codebase and questionable taste could
 finish it.
 
 - **Names, not references.** `deliverables` lists every file path, and the
-  milestone's `description` or steps name each type or function the file
-  introduces with its signature. "As described in the design doc" is a
-  plan failure.
-- **Code, not intentions.** A step that changes code shows the code. A step
-  that runs a command shows the command and its expected output.
+  milestone's `description` names each type or function the file introduces
+  with its signature. "As described in the design doc" is a plan failure.
 - **Criteria written out.** Each criterion states `given`/`when`/`then` in full
   and `name`s the test that proves it.
 - **Cross-milestone types are named once, where they are born.** A type,
@@ -83,7 +80,7 @@ types, shared files and dependency pins in a milestone both depend on.
 ## Top-level shape
 
 ```yaml
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 description: |          # optional — context every milestone shares
   ...
 rules:                  # optional — references every milestone loads
@@ -94,7 +91,7 @@ milestones:
 ```
 
 - `schemaVersion` — semver, no `v` prefix. The current format version is
-  `0.3.0`; `validate` rejects any other.
+  `0.4.0`; `validate` rejects any other.
 - `description` — optional markdown: context every milestone shares.
 - `rules` — optional list of references (skill names or repo paths) every
   milestone loads.
@@ -111,11 +108,10 @@ Each entry under `milestones` is a mapping:
 | `number` | yes | Integer ordinal (≥ 1), unique across the plan. Reading order / deterministic tie-break. |
 | `slug` | no | Stable, position-independent kebab-case identity (`^[a-z0-9]+(-[a-z0-9]+)*$`). If omitted, it is derived from `goal` (lowercased, punctuation stripped, words joined with `-`). `depends-on` always references slugs, never numbers. |
 | `goal` | yes | The milestone's human label / intent (non-empty string). |
-| `description` | no | Markdown: why this milestone exists and how to build it — the decisions, the shape of the code, the gotchas. Context for the implementer, not a restatement of the steps. |
+| `description` | no | Markdown: why the milestone exists, its scope, the interfaces it provides and uses, its design decisions and risks — see "A milestone is a mergeable deliverable". |
 | `rules` | no | References (skill names or repo paths) this milestone needs beyond the plan-level `rules`. |
 | `deliverables` | no | Either a prose string, or a structured `create` / `modify` / `test` map of file lists (an optional structured detail slot — pick whichever fits). |
 | `contract` | yes | The mandatory verification contract — see below. |
-| `steps` | yes | A non-empty list of checkbox items — see below. |
 | `depends-on` | no | A list of slugs this milestone depends on. |
 
 ### Identity: `number` + `slug`
@@ -146,7 +142,7 @@ can start at once:
 
 Validation rejects: dangling edges (a `depends-on` slug nothing defines),
 cycles (named by the offending milestone chain), and a `schemaVersion` other
-than `0.3.0`.
+than `0.4.0`.
 
 ### The contract: `check` / `criteria` / `paths`
 
@@ -207,33 +203,17 @@ contract:
   the same file produce a non-fatal **warning** (not a rejection) — a signal to
   either add a `depends-on` edge or narrow the globs.
 
-### Steps
+### A milestone is a mergeable deliverable
 
-`steps` is a non-empty list of checkbox items. Each step is one action of two
-to five minutes: write the failing test, run it and see it fail, write the
-code, run it and see it pass, commit. A step may span several lines — use a
-YAML block scalar and start it with the checkbox:
+A milestone is a deliverable a reviewer could merge on its own. Its `contract`
+proves it. Its `description` carries what the implementer needs to build it:
 
-```yaml
-steps:
-  - |
-    [ ] Write the failing test
-    ```go
-    func TestHandlesEmptyInput(t *testing.T) {
-        if got := Parse(""); got != nil {
-            t.Fatalf("Parse(\"\") = %v, want nil", got)
-        }
-    }
-    ```
-  - "[ ] Run `go test ./internal/foo/ -run TestHandlesEmptyInput` — expect FAIL: undefined: Parse"
-  - text: "[ ] Implement Parse"
-    files:
-      - internal/foo/parse.go
-```
+- **Why** the milestone exists.
+- **Scope**: the files and directories it touches.
+- **Interfaces** it provides and uses, each named with its signature.
+- **Design decisions** and **risks**.
 
-Every entry must begin with `[ ]` (not started) or `[x]` / `[X]` (done); the
-loader strips the marker and records a boolean `done` flag plus the remaining
-text.
+The plan holds no code; the implementer writes it.
 
 ## Authoring workflow
 
@@ -243,7 +223,7 @@ text.
    you validate with (`milestoned-plan-dag --version`):
 
    ```yaml
-   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.3.0/schema/plan.schema.json
+   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.4.0/schema/plan.schema.json
    ```
 
    The tag matters. The CLI validates against the schema **embedded in the
@@ -273,7 +253,7 @@ text.
    ```
 
 4. **Render**, to get a read-only human markdown view (one section per
-   milestone, with a fenced `contract` block and checkbox steps) for review:
+   milestone, with a fenced `contract` block) for review:
 
    ```
    milestoned-plan-dag render plan.yaml

@@ -77,8 +77,6 @@ func TestMissingSchemaVersionRejected(t *testing.T) {
       check: none
       criteria: x
       paths: []
-    steps:
-      - "[ ] do a thing"
 `)
 	if err := Validate(doc); err == nil {
 		t.Fatal("expected a plan lacking schemaVersion to fail shape validation")
@@ -96,8 +94,6 @@ milestones:
       check: none
       criteria: x
       paths: []
-    steps:
-      - "[ ] do a thing"
 `)
 	if err := Validate(doc); err == nil {
 		t.Fatal("expected a v-prefixed schemaVersion to fail shape validation")
@@ -106,7 +102,7 @@ milestones:
 
 // A contract missing paths fails shape validation.
 func TestContractMissingPathsRejected(t *testing.T) {
-	doc := []byte(`schemaVersion: 0.3.0
+	doc := []byte(`schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: a
@@ -114,30 +110,29 @@ milestones:
     contract:
       check: none
       criteria: x
-    steps:
-      - "[ ] do a thing"
 `)
 	if err := Validate(doc); err == nil {
 		t.Fatal("expected a contract with no paths key to fail shape validation")
 	}
 }
 
-// A plain-bullet (non-checkbox) step fails the step pattern.
-func TestNonCheckboxStepRejected(t *testing.T) {
-	doc := []byte(`schemaVersion: 0.3.0
+// Milestones carry no steps: a milestone with a steps list fails shape
+// validation (additionalProperties is false).
+func TestMilestoneStepsRejected(t *testing.T) {
+	doc := []byte(`schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: a
-    goal: bad step
+    goal: has steps
     contract:
       check: none
       criteria: x
       paths: []
     steps:
-      - just a plain bullet
+      - "[ ] do a thing"
 `)
 	if err := Validate(doc); err == nil {
-		t.Fatal("expected a non-checkbox step to fail shape validation")
+		t.Fatal("expected a milestone with steps to fail shape validation")
 	}
 }
 
@@ -173,7 +168,7 @@ func TestShapeErrorNamesTheViolationNotTheSchema(t *testing.T) {
 // from: the embedded schema's URI is its $id, not a path resolved against the
 // working directory.
 func TestShapeErrorIsWorkingDirectoryIndependent(t *testing.T) {
-	doc := []byte("schemaVersion: 0.3.0\n")
+	doc := []byte("schemaVersion: 0.4.0\n")
 	before := Validate(doc)
 	if before == nil {
 		t.Fatal("expected a plan with no milestones to fail shape validation")

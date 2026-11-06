@@ -10,12 +10,7 @@
 check: go test ./internal/plan/...
 criteria:
   - schema version round-trips: given a plan authored against the initial format, when it is loaded, then it declares schemaVersion 0.1.0
-  - steps carry checkbox state: given a milestone with checkbox steps, when it is loaded, then each step's done flag reflects its [ ] or [x] marker
+  - structured deliverables round-trip: given a milestone with create, modify and test deliverables, when it is loaded, then each list is populated
 paths:
   - internal/plan/**
 ```
-
-**Steps**
-
-- [x] define the model
-- [ ] write the loader

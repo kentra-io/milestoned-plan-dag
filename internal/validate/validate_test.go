@@ -135,17 +135,31 @@ func TestEmptyCriteriaRejected(t *testing.T) {
 	}
 }
 
-// A plan written before 0.3.0 relied on the implicit edge on the preceding
-// milestone, which no longer exists; reading it would silently drop its
-// ordering, so validate rejects it and says how to migrate.
+// A plan written for an older schema version is rejected, and the error says
+// how to migrate: 0.3.0 dropped the implicit edge on the preceding milestone,
+// 0.4.0 dropped milestone steps.
 func TestOldSchemaVersionRejected(t *testing.T) {
-	r := validate(t, "invalid/old-schema-version.yaml")
-	if r.OK() {
-		t.Fatal("a 0.2.0 plan should be rejected")
+	for _, old := range []string{"0.2.0", "0.3.0"} {
+		r := validate(t, "invalid/old-schema-version-"+old+".yaml")
+		if r.OK() {
+			t.Fatalf("a %s plan should be rejected", old)
+		}
+		e := joinErrs(r)
+		if !strings.Contains(e, `schemaVersion "`+old+`" is not supported`) || !strings.Contains(e, "description") {
+			t.Errorf("error should name the version and the migration, got: %s", e)
+		}
 	}
-	e := joinErrs(r)
-	if !strings.Contains(e, `schemaVersion "0.2.0" is not supported`) || !strings.Contains(e, "depends-on") {
-		t.Errorf("error should name the version and the depends-on migration, got: %s", e)
+}
+
+// A current-version plan whose milestone still carries steps is rejected by
+// the shape tier.
+func TestMilestoneStepsRejected(t *testing.T) {
+	r := validate(t, "invalid/milestone-steps.yaml")
+	if r.OK() {
+		t.Fatal("a milestone with steps should be rejected")
+	}
+	if !strings.Contains(joinErrs(r), "steps") {
+		t.Errorf("error should name steps, got: %s", joinErrs(r))
 	}
 }
 

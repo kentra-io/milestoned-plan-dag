@@ -1,4 +1,4 @@
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: a
@@ -9,8 +9,6 @@ milestones:
       criteria: Foundation is in place.
       paths:
         - internal/foundation/**
-    steps:
-      - "[x] lay the foundation"
   - number: 2
     slug: b
     goal: First branch
@@ -22,8 +20,6 @@ milestones:
         - internal/b/**
     depends-on:
       - a
-    steps:
-      - "[ ] build branch b"
   - number: 3
     slug: c
     goal: Second branch
@@ -35,5 +31,3 @@ milestones:
         - internal/c/**
     depends-on:
       - a
-    steps:
-      - "[ ] build branch c"

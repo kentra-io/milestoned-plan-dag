@@ -23,25 +23,22 @@ func TestTopoOrderBranchingIsDeterministic(t *testing.T) {
 // depending only on 1, 2 must precede 3 even if 3 is authored first.
 func TestTopoOrderTieBreaksByNumberNotDocumentOrder(t *testing.T) {
 	g := Build(loadInline(t, `
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: root
     goal: Root
     contract: {check: none, criteria: c, paths: []}
-    steps: ["[ ] x"]
   - number: 3
     slug: later
     goal: Later
     contract: {check: none, criteria: c, paths: []}
     depends-on: [root]
-    steps: ["[ ] x"]
   - number: 2
     slug: earlier
     goal: Earlier
     contract: {check: none, criteria: c, paths: []}
     depends-on: [root]
-    steps: ["[ ] x"]
 `))
 	got, err := g.TopoOrder()
 	if err != nil {
@@ -55,20 +52,18 @@ milestones:
 
 func TestTopoOrderRejectsACycle(t *testing.T) {
 	g := Build(loadInline(t, `
-schemaVersion: 0.3.0
+schemaVersion: 0.4.0
 milestones:
   - number: 1
     slug: x
     goal: X
     contract: {check: none, criteria: c, paths: []}
     depends-on: [y]
-    steps: ["[ ] x"]
   - number: 2
     slug: y
     goal: Y
     contract: {check: none, criteria: c, paths: []}
     depends-on: [x]
-    steps: ["[ ] x"]
 `))
 	if _, err := g.TopoOrder(); err == nil {
 		t.Fatal("TopoOrder should error on a cycle, got nil")

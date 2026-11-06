@@ -58,7 +58,7 @@ func TestResolve_BranchingOrderAndEdges(t *testing.T) {
 
 // TestResolve_CarriesFullMilestoneData covers spec scenario "A consumer
 // reads contracts without parsing markdown": every milestone in the
-// projection must expose slug, contract, and steps-with-checkbox-state.
+// projection must expose slug and contract.
 func TestResolve_CarriesFullMilestoneData(t *testing.T) {
 	p := loadFixture(t, "../../testdata/valid/branching.yaml")
 
@@ -86,9 +86,6 @@ func TestResolve_CarriesFullMilestoneData(t *testing.T) {
 	if len(m.Contract.Paths) != 1 || m.Contract.Paths[0] != "internal/foundation/**" {
 		t.Fatalf("Contract.Paths = %v", m.Contract.Paths)
 	}
-	if len(m.Steps) != 1 || m.Steps[0].Text != "lay the foundation" || !m.Steps[0].Done {
-		t.Fatalf("Steps = %+v, want one done step", m.Steps)
-	}
 }
 
 // TestResolve_StructuredSlotsRoundTrip covers the structured deliverables and
@@ -114,9 +111,6 @@ func TestResolve_StructuredSlotsRoundTrip(t *testing.T) {
 	}
 	if m.Contract.Criteria.Cases[0].Name != "schema version round-trips" {
 		t.Fatalf("Cases[0].Name = %q", m.Contract.Criteria.Cases[0].Name)
-	}
-	if len(m.Steps) != 2 || len(m.Steps[0].Files) != 1 || m.Steps[0].Files[0] != "internal/plan/types.go" {
-		t.Fatalf("Steps = %+v", m.Steps)
 	}
 }
 

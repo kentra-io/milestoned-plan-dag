@@ -35,30 +35,27 @@ Every milestone SHALL carry a verification `contract` with three fields:
 - `paths` — the milestone's allowed write-set. An empty list (`[]`) means the
   diff MUST be empty; a `**` wildcard means the diff is consciously unconfined.
 
-### Steps are checkbox-tracked
-A milestone's steps SHALL be authored as checkbox items (`[ ]` / `[x]`) so step
-completion is structurally visible and a downstream consumer can refuse to treat
-a plan as complete while tracked steps remain unchecked.
-
 ### The plan declares a schema version
 A plan SHALL declare a `schemaVersion` using semantic versioning without a `v`
 prefix, so the format can evolve without silently breaking consumers. The
-current version is `0.3.0`; `validate` rejects any other, because a plan
-written for 0.1.0 or 0.2.0 relied on implicit edges that no longer exist.
+current version is `0.4.0`; `validate` rejects any other, because a plan
+written for 0.1.0 or 0.2.0 relied on implicit edges that no longer exist, and
+a plan written for an earlier version may carry milestone `steps`, which 0.4.0
+no longer has.
 
 ### Optional structured detail slots
 The schema reserves optional slots that let a plan carry file-specific detail
-without mandating it: structured `Create` / `Modify` / `Test` deliverables, a
-per-step `files` reference, and a test-case-shaped `criteria`. A plan omitting all
+without mandating it: structured `Create` / `Modify` / `Test` deliverables and a
+test-case-shaped `criteria`. A plan omitting all
 of these remains valid. A plan and each milestone may also carry a markdown
 `description` and a `rules` list of references (skill names or repository
-paths); a milestone's step may span several lines.
+paths).
 
 ## Capability: plan-validation (the validator guarantees)
 
 `validate` runs JSON-Schema shape validation, then semantic validation. It
 rejects (non-zero exit, naming the offender):
-- a `schemaVersion` other than the current one (`0.3.0`);
+- a `schemaVersion` other than the current one (`0.4.0`);
 - a `depends-on` cycle (a valid plan always admits at least one topological order);
 - a `depends-on` entry referencing a slug no milestone defines (dangling edge);
 - two milestones sharing a `slug` or a `number` (duplicate identity);
@@ -74,7 +71,7 @@ milestones and the overlapping glob, while still exiting 0.
 
 `resolve` reads a validated plan and emits a machine-readable **YAML** projection
 exposing, per milestone: `number`, `slug`, `goal`, `deliverables`, the full
-`contract` (`check` / `criteria` / `paths`), `steps` with checkbox state, and
+`contract` (`check` / `criteria` / `paths`), and
 `depends_on` edges. The `depends_on` edges are authoritative; the projection
 additionally carries a computed valid **topological order** for the current serial
 executor, deterministic with ties broken by `number` so the output is
@@ -82,7 +79,7 @@ byte-reproducible across runs. YAML is the sole projection format — there is n
 `--format json` flag.
 
 `render` emits a read-only human markdown view (Goal / Deliverables / Validation
-contract / checkbox steps) from the same model; nothing parses it back.
+contract) from the same model; nothing parses it back.
 
 ## Non-goals
 
