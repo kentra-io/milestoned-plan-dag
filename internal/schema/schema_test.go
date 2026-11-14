@@ -102,7 +102,7 @@ milestones:
 
 // A contract missing paths fails shape validation.
 func TestContractMissingPathsRejected(t *testing.T) {
-	doc := []byte(`schemaVersion: 0.4.0
+	doc := []byte(`schemaVersion: 0.5.0
 milestones:
   - number: 1
     slug: a
@@ -119,7 +119,7 @@ milestones:
 // Milestones carry no steps: a milestone with a steps list fails shape
 // validation (additionalProperties is false).
 func TestMilestoneStepsRejected(t *testing.T) {
-	doc := []byte(`schemaVersion: 0.4.0
+	doc := []byte(`schemaVersion: 0.5.0
 milestones:
   - number: 1
     slug: a
@@ -168,7 +168,7 @@ func TestShapeErrorNamesTheViolationNotTheSchema(t *testing.T) {
 // from: the embedded schema's URI is its $id, not a path resolved against the
 // working directory.
 func TestShapeErrorIsWorkingDirectoryIndependent(t *testing.T) {
-	doc := []byte("schemaVersion: 0.4.0\n")
+	doc := []byte("schemaVersion: 0.5.0\n")
 	before := Validate(doc)
 	if before == nil {
 		t.Fatal("expected a plan with no milestones to fail shape validation")

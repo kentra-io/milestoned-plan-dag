@@ -113,3 +113,22 @@ func TestRender_ContextGolden(t *testing.T) {
 		t.Fatalf("render output does not match golden:\ngot:\n%s\nwant:\n%s", got, want)
 	}
 }
+
+func TestRender_RepoShown(t *testing.T) {
+	render := func(path string) string {
+		out, err := Render(loadFixture(t, path))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	out := render("../../testdata/valid/multi-repo.yaml")
+	for _, want := range []string{"**Repository** — `app`", "**Repository** — `../sibling`", "**Repository** — `libs/core`"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q in:\n%s", want, out)
+		}
+	}
+	if strings.Contains(render("../../testdata/valid/branching.yaml"), "Repository") {
+		t.Error("a plan without repo should show none")
+	}
+}

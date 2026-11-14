@@ -8,6 +8,7 @@ package render
 
 import (
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
@@ -48,6 +49,9 @@ func renderContext(b *strings.Builder, description string, rules []string) {
 func renderMilestone(b *strings.Builder, m plan.Milestone) {
 	fmt.Fprintf(b, "## Milestone %d: %s\n\n", m.Number, m.Goal)
 	fmt.Fprintf(b, "**Goal** — %s\n\n", m.Goal)
+	if m.Repo != "" {
+		fmt.Fprintf(b, "**Repository** — `%s`\n\n", path.Clean(m.Repo))
+	}
 	if strings.TrimSpace(m.Description) != "" {
 		b.WriteString("**Description**\n\n")
 	}

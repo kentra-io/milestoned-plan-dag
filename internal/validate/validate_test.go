@@ -225,3 +225,57 @@ func TestOverlappingRootsWarn(t *testing.T) {
 		t.Errorf("warning should name left, right and the glob, got: %s", w)
 	}
 }
+
+func TestMultiRepoAccepted(t *testing.T) {
+	r := validate(t, "valid/multi-repo.yaml")
+	if !r.OK() || len(r.Warnings) != 0 {
+		t.Fatalf("errors=%v warnings=%v", r.Errors, r.Warnings)
+	}
+}
+
+func TestMixedRepoRejected(t *testing.T) {
+	r := validate(t, "invalid/mixed-repo.yaml")
+	if r.OK() || !strings.Contains(joinErrs(r), `not on: "two"`) {
+		t.Fatalf("mixed repo should be rejected naming two, got: %v", r.Errors)
+	}
+}
+
+func TestAbsoluteRepoRejected(t *testing.T) {
+	r := validate(t, "invalid/absolute-repo.yaml")
+	if r.OK() || !strings.Contains(joinErrs(r), `milestone "one": repo "/abs/path" is absolute`) {
+		t.Fatalf("absolute repo should be rejected, got: %v", r.Errors)
+	}
+}
+
+func TestOverlapPerRepo(t *testing.T) {
+	r := validate(t, "warn/overlap-per-repo.yaml")
+	want := `independent milestones "three" and "four" both write "y/**" — potential concurrent write conflict`
+	if !r.OK() || len(r.Warnings) != 1 || r.Warnings[0] != want {
+		t.Fatalf("errors=%v warnings=%v", r.Errors, r.Warnings)
+	}
+}
+
+// Warnings recorded from the 0.4.0 binary on the same plans.
+func TestSingleRepoPlansUnchanged(t *testing.T) {
+	for file, want := range map[string]string{
+		"warn/overlapping-paths.yaml": `independent milestones "b" and "c" both write "internal/foo/**" — potential concurrent write conflict`,
+		"warn/overlapping-roots.yaml": `independent milestones "left" and "right" both write "internal/shared/**" — potential concurrent write conflict`,
+	} {
+		r := validate(t, file)
+		if len(r.Errors) != 0 || len(r.Warnings) != 1 || r.Warnings[0] != want {
+			t.Errorf("%s: errors=%v warnings=%v", file, r.Errors, r.Warnings)
+		}
+	}
+	for _, file := range []string{"valid/branching.yaml", "valid/sequential.yaml", "valid/independent-chains.yaml"} {
+		if r := validate(t, file); len(r.Errors) != 0 || len(r.Warnings) != 0 {
+			t.Errorf("%s: errors=%v warnings=%v", file, r.Errors, r.Warnings)
+		}
+	}
+}
+
+func TestSchemaVersion040Rejected(t *testing.T) {
+	r, err := Validate([]byte(strings.Replace(string(read(t, "valid/sequential.yaml")), "0.5.0", "0.4.0", 1)))
+	if err != nil || !strings.Contains(joinErrs(r), `schemaVersion "0.4.0" is not supported`) {
+		t.Fatalf("err=%v errors=%v", err, r.Errors)
+	}
+}

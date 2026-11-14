@@ -204,3 +204,28 @@ func TestResolve_CarriesContextAndRules(t *testing.T) {
 		}
 	}
 }
+
+func TestResolve_RepoShown(t *testing.T) {
+	out := marshalFixture(t, "../../testdata/valid/multi-repo.yaml")
+	for _, want := range []string{"repo: app\n", "repo: ../sibling\n", "repo: libs/core\n"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q in:\n%s", want, out)
+		}
+	}
+	if strings.Contains(marshalFixture(t, "../../testdata/valid/branching.yaml"), "repo:") {
+		t.Error("a plan without repo should show none")
+	}
+}
+
+func marshalFixture(t *testing.T, path string) string {
+	t.Helper()
+	proj, err := Resolve(loadFixture(t, path))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := proj.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
+}

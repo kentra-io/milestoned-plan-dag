@@ -50,7 +50,7 @@ func TestExplicitChain(t *testing.T) {
 // plan-schema "A milestone without depends-on is a root": no edge is ever
 // inferred from document order, so several milestones can start at once.
 func TestNoDependsOnMeansRoot(t *testing.T) {
-	g := Build(loadInline(t, `schemaVersion: 0.4.0
+	g := Build(loadInline(t, `schemaVersion: 0.5.0
 milestones:
   - number: 1
     slug: a
@@ -106,7 +106,7 @@ func TestNoCycleForDAG(t *testing.T) {
 }
 
 func TestCycleDetectedAndNamed(t *testing.T) {
-	g := Build(loadInline(t, `schemaVersion: 0.4.0
+	g := Build(loadInline(t, `schemaVersion: 0.5.0
 milestones:
   - number: 1
     slug: a
@@ -143,7 +143,7 @@ func TestReachableNotSelfForAcyclic(t *testing.T) {
 // a depends-on edge resolves by slug regardless of the target's document
 // position / number.
 func TestSlugPositionIndependent(t *testing.T) {
-	early := Build(loadInline(t, `schemaVersion: 0.4.0
+	early := Build(loadInline(t, `schemaVersion: 0.5.0
 milestones:
   - number: 1
     slug: base
@@ -162,7 +162,7 @@ milestones:
 `))
 	// parse-dag moved earlier (now number 1, first in document); consumer's
 	// depends-on: [parse-dag] must still resolve.
-	moved := Build(loadInline(t, `schemaVersion: 0.4.0
+	moved := Build(loadInline(t, `schemaVersion: 0.5.0
 milestones:
   - number: 1
     slug: parse-dag

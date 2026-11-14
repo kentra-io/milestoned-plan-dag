@@ -1,0 +1,12 @@
+schemaVersion: 0.5.0
+milestones:
+  - number: 1
+    slug: one
+    goal: Milestone one
+    repo: /abs/path
+    deliverables: Work in one.
+    contract:
+      check: none
+      criteria: one is done.
+      paths:
+        - internal/**

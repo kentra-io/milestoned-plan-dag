@@ -43,6 +43,9 @@ type Milestone struct {
 	// Description is optional markdown: why this milestone exists and how it
 	// is meant to be built, beyond what deliverables say.
 	Description string `yaml:"description,omitempty"`
+	// Repo is the git repository the milestone works in, a path relative to
+	// the project root. All milestones set it or none do.
+	Repo string `yaml:"repo,omitempty"`
 	// Rules are references (skill names or repository paths) this milestone
 	// needs in addition to the plan-level rules.
 	Rules []string `yaml:"rules,omitempty"`

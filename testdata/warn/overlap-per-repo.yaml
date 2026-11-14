@@ -1,0 +1,42 @@
+schemaVersion: 0.5.0
+milestones:
+  - number: 1
+    slug: one
+    goal: Milestone one
+    repo: a
+    deliverables: Work in one.
+    contract:
+      check: none
+      criteria: one is done.
+      paths:
+        - x/**
+  - number: 2
+    slug: two
+    goal: Milestone two
+    repo: b
+    deliverables: Work in two.
+    contract:
+      check: none
+      criteria: two is done.
+      paths:
+        - x/**
+  - number: 3
+    slug: three
+    goal: Milestone three
+    repo: a
+    deliverables: Work in three.
+    contract:
+      check: none
+      criteria: three is done.
+      paths:
+        - y/**
+  - number: 4
+    slug: four
+    goal: Milestone four
+    repo: ./a/
+    deliverables: Work in four.
+    contract:
+      check: none
+      criteria: four is done.
+      paths:
+        - y/**

@@ -80,7 +80,7 @@ types, shared files and dependency pins in a milestone both depend on.
 ## Top-level shape
 
 ```yaml
-schemaVersion: 0.4.0
+schemaVersion: 0.5.0
 description: |          # optional — context every milestone shares
   ...
 rules:                  # optional — references every milestone loads
@@ -91,7 +91,7 @@ milestones:
 ```
 
 - `schemaVersion` — semver, no `v` prefix. The current format version is
-  `0.4.0`; `validate` rejects any other.
+  `0.5.0`; `validate` rejects any other.
 - `description` — optional markdown: context every milestone shares.
 - `rules` — optional list of references (skill names or repo paths) every
   milestone loads.
@@ -142,7 +142,7 @@ can start at once:
 
 Validation rejects: dangling edges (a `depends-on` slug nothing defines),
 cycles (named by the offending milestone chain), and a `schemaVersion` other
-than `0.4.0`.
+than `0.5.0`.
 
 ### The contract: `check` / `criteria` / `paths`
 
@@ -223,7 +223,7 @@ The plan holds no code; the implementer writes it.
    you validate with (`milestoned-plan-dag --version`):
 
    ```yaml
-   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.4.0/schema/plan.schema.json
+   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.5.0/schema/plan.schema.json
    ```
 
    The tag matters. The CLI validates against the schema **embedded in the
