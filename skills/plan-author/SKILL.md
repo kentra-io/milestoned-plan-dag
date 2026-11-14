@@ -14,21 +14,37 @@ This skill documents the grammar and the CLI workflow for authoring one. It does
 not assume or name any particular agent runtime — the plan format and CLI are
 agent-agnostic.
 
-## Scope: one plan = one git repository
+## Scope: one repository or several
 
-A plan describes work in **a single repository**. Every `contract.paths` glob is
-relative to one project root, so the plan has exactly one root and every
-milestone's write-set resolves against it.
+A plan without `repo` is a **single-repository plan**: every `contract.paths`
+glob is relative to the one project root, and executors commit there.
 
-**Multi-repo and multi-module (separate git roots) projects are not supported.**
-Do not write a plan whose milestones deliver into different repositories, and do
-not path-prefix milestones to reach a sibling repo or a nested checkout — there
-is no way to express which root a path belongs to, and executors (which commit
-per milestone at the single root) will silently commit nothing for the
-milestones that point elsewhere. Write one plan per repository instead.
+A plan whose milestones deliver into different git repositories is a
+**multi-repository plan**: set `repo` on **every** milestone (all or none).
+`repo` is a path from the project root to the repository the milestone works in
+(`app`, `libs/core`, `../other-repo`); `a`, `./a` and `a/` name one repository,
+and an absolute path is rejected. In a multi-repository plan:
 
-The same rule covers a plan whose deliverable is a **new** repository: create the
-repo first, then write the plan inside it.
+- `paths` are relative to the milestone's own repository.
+- The milestone's worktree, branch, `check` and `paths` all live in that
+  repository, and executors commit per repository.
+- A milestone that changes two repositories is two milestones, linked by `depends-on`.
+
+```yaml
+- number: 2
+  slug: client-call
+  goal: Call the new endpoint from the client
+  repo: ../other-repo
+  depends-on: [add-endpoint]
+  contract:
+    check: go test ./...
+    criteria: [...]
+    paths:
+      - internal/client/**   # relative to ../other-repo
+```
+
+A plan whose deliverable is a **new** repository: create the repo first, then
+write the plan inside it.
 
 ## The bar: an implementer never explores
 
@@ -80,7 +96,7 @@ types, shared files and dependency pins in a milestone both depend on.
 ## Top-level shape
 
 ```yaml
-schemaVersion: 0.4.0
+schemaVersion: 0.5.0
 description: |          # optional — context every milestone shares
   ...
 rules:                  # optional — references every milestone loads
@@ -91,7 +107,7 @@ milestones:
 ```
 
 - `schemaVersion` — semver, no `v` prefix. The current format version is
-  `0.4.0`; `validate` rejects any other.
+  `0.5.0`; `validate` rejects any other.
 - `description` — optional markdown: context every milestone shares.
 - `rules` — optional list of references (skill names or repo paths) every
   milestone loads.
@@ -109,6 +125,7 @@ Each entry under `milestones` is a mapping:
 | `slug` | no | Stable, position-independent kebab-case identity (`^[a-z0-9]+(-[a-z0-9]+)*$`). If omitted, it is derived from `goal` (lowercased, punctuation stripped, words joined with `-`). `depends-on` always references slugs, never numbers. |
 | `goal` | yes | The milestone's human label / intent (non-empty string). |
 | `description` | no | Markdown: why the milestone exists, its scope, the interfaces it provides and uses, its design decisions and risks — see "A milestone is a mergeable deliverable". |
+| `repo` | no | Path from the project root to the git repository this milestone works in (`../other-repo` allowed, absolute rejected). All milestones set it or none do — see "Scope". |
 | `rules` | no | References (skill names or repo paths) this milestone needs beyond the plan-level `rules`. |
 | `deliverables` | no | Either a prose string, or a structured `create` / `modify` / `test` map of file lists (an optional structured detail slot — pick whichever fits). |
 | `contract` | yes | The mandatory verification contract — see below. |
@@ -141,8 +158,9 @@ can start at once:
 - A plan may end in several sinks; nothing requires a joining milestone.
 
 Validation rejects: dangling edges (a `depends-on` slug nothing defines),
-cycles (named by the offending milestone chain), and a `schemaVersion` other
-than `0.4.0`.
+cycles (named by the offending milestone chain), a `schemaVersion` other
+than `0.5.0`, an absolute `repo`, and `repo` set on some milestones but not all
+(the error names the milestones without it).
 
 ### The contract: `check` / `criteria` / `paths`
 
@@ -195,12 +213,13 @@ contract:
   meaning this milestone's diff must be empty (a verify-only or read-only
   milestone). A single **`**`** entry is a conscious escape meaning the
   write-set is deliberately unconfined. Ordinary entries are directory globs,
-  e.g. `internal/foo/**`, always relative to the plan's single project root
-  (see "Scope" above — they cannot reach another repository).
+  e.g. `internal/foo/**`, relative to the project root, or in a multi-repository plan to the
+  milestone's own `repo` (see "Scope").
 
   Two *independent* milestones (no dependency path between them, so a future
   concurrent executor could run them together) whose `paths` globs could match
-  the same file produce a non-fatal **warning** (not a rejection) — a signal to
+  the same file (in a multi-repository plan, only milestones of the same
+  repository are compared) produce a non-fatal **warning** (not a rejection) — a signal to
   either add a `depends-on` edge or narrow the globs.
 
 ### A milestone is a mergeable deliverable
@@ -223,7 +242,7 @@ The plan holds no code; the implementer writes it.
    you validate with (`milestoned-plan-dag --version`):
 
    ```yaml
-   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.4.0/schema/plan.schema.json
+   # yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.5.0/schema/plan.schema.json
    ```
 
    The tag matters. The CLI validates against the schema **embedded in the

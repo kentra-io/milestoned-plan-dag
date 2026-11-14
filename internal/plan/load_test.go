@@ -19,8 +19,8 @@ func loadFixture(t *testing.T, name string) *Plan {
 // plan-schema: "A plan stamps its schema version".
 func TestSchemaVersionRoundTrips(t *testing.T) {
 	p := loadFixture(t, "sequential.yaml")
-	if p.SchemaVersion != "0.4.0" {
-		t.Fatalf("schemaVersion = %q, want 0.4.0", p.SchemaVersion)
+	if p.SchemaVersion != "0.5.0" {
+		t.Fatalf("schemaVersion = %q, want 0.5.0", p.SchemaVersion)
 	}
 }
 

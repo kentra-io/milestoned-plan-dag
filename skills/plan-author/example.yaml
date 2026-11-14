@@ -1,10 +1,10 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.4.0/schema/plan.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kentra-io/milestoned-plan-dag/v0.5.0/schema/plan.schema.json
 #
 # A small worked example exercising: explicit slugs, an explicit edge on the
 # preceding milestone, a branching + merging DAG, named-test criteria against
 # one standard check, and both contract "conscious escapes" (check: none and
 # paths: []).
-schemaVersion: 0.4.0
+schemaVersion: 0.5.0
 description: |
   A worked example: a foundation milestone, then two independent branches
   that can run in parallel, then a join.

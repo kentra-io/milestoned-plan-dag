@@ -8,6 +8,7 @@ package validate
 
 import (
 	"fmt"
+	"path"
 	"sort"
 	"strings"
 
@@ -31,7 +32,7 @@ func (r *Result) OK() bool { return len(r.Errors) == 0 }
 // dropped the implicit edge on the preceding milestone, so an older plan
 // would lose its ordering without a word; 0.4.0 dropped milestone steps, so
 // an older plan would lose its step detail. Older plans are rejected instead.
-const SchemaVersion = "0.4.0"
+const SchemaVersion = "0.5.0"
 
 // checkSchemaVersion rejects any plan not written for SchemaVersion.
 func checkSchemaVersion(p *plan.Plan, r *Result) {
@@ -42,7 +43,7 @@ func checkSchemaVersion(p *plan.Plan, r *Result) {
 		"schemaVersion %q is not supported: this milestoned-plan-dag reads %s plans. "+
 			"Since 0.3.0 a milestone without depends-on has no dependencies; give every milestone "+
 			"that must wait for another an explicit depends-on. Since 0.4.0 a milestone has no steps; "+
-			"move that detail into its description. Then set schemaVersion: %s",
+			"move that detail into its description. Since 0.5.0 a milestone may name its repository with repo. Then set schemaVersion: %s",
 		p.SchemaVersion, SchemaVersion, SchemaVersion))
 }
 
@@ -69,6 +70,7 @@ func Validate(planYAML []byte) (*Result, error) {
 	checkSchemaVersion(p, r)
 	checkIdentity(p, r)
 	checkContracts(p, r)
+	checkRepos(p, r)
 	dangling := checkDependencies(p, r)
 
 	// Cycle detection and path-overlap analysis need a well-formed edge set:
@@ -140,6 +142,25 @@ func checkContracts(p *plan.Plan, r *Result) {
 	}
 }
 
+// checkRepos rejects an absolute repo and a plan that sets repo on only some
+// milestones.
+func checkRepos(p *plan.Plan, r *Result) {
+	var missing []string
+	for _, m := range p.Milestones {
+		if path.IsAbs(m.Repo) {
+			r.Errors = append(r.Errors, fmt.Sprintf(
+				"milestone %q: repo %q is absolute; repo is a path relative to the project root", m.Slug, m.Repo))
+		}
+		if m.Repo == "" {
+			missing = append(missing, fmt.Sprintf("%q", m.Slug))
+		}
+	}
+	if len(missing) > 0 && len(missing) < len(p.Milestones) {
+		r.Errors = append(r.Errors, fmt.Sprintf(
+			"repo is set on some milestones but not on: %s; set repo on every milestone or on none", strings.Join(missing, ", ")))
+	}
+}
+
 // checkDependencies rejects depends-on references to undefined slugs
 // (plan-validation "Dependency edges resolve to existing milestones"). It
 // returns whether any dangling edge was found.
@@ -170,7 +191,7 @@ func warnOverlappingPaths(p *plan.Plan, g *dag.Graph, r *Result) {
 	for i := 0; i < len(p.Milestones); i++ {
 		for j := i + 1; j < len(p.Milestones); j++ {
 			a, b := p.Milestones[i], p.Milestones[j]
-			if !g.Independent(a.Slug, b.Slug) {
+			if !g.Independent(a.Slug, b.Slug) || path.Clean(a.Repo) != path.Clean(b.Repo) {
 				continue
 			}
 			for _, overlap := range overlappingGlobs(a.Contract.Paths, b.Contract.Paths) {

@@ -1,0 +1,32 @@
+schemaVersion: 0.5.0
+milestones:
+  - number: 1
+    slug: one
+    goal: Milestone one
+    repo: app
+    deliverables: Work in one.
+    contract:
+      check: none
+      criteria: one is done.
+      paths:
+        - internal/**
+  - number: 2
+    slug: two
+    goal: Milestone two
+    repo: ../sibling
+    deliverables: Work in two.
+    contract:
+      check: none
+      criteria: two is done.
+      paths:
+        - internal/**
+  - number: 3
+    slug: three
+    goal: Milestone three
+    repo: libs/core
+    deliverables: Work in three.
+    contract:
+      check: none
+      criteria: three is done.
+      paths:
+        - internal/**

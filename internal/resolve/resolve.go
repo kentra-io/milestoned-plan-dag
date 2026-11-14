@@ -11,6 +11,8 @@
 package resolve
 
 import (
+	"path"
+
 	"github.com/kentra-io/milestoned-plan-dag/internal/dag"
 	"github.com/kentra-io/milestoned-plan-dag/internal/plan"
 
@@ -37,6 +39,7 @@ type MilestoneProjection struct {
 	Number       int          `yaml:"number"`
 	Slug         string       `yaml:"slug"`
 	Goal         string       `yaml:"goal"`
+	Repo         string       `yaml:"repo,omitempty"`
 	Description  string       `yaml:"description,omitempty"`
 	Rules        []string     `yaml:"rules,omitempty"`
 	Deliverables Deliverables `yaml:"deliverables"`
@@ -123,6 +126,7 @@ func milestoneProjection(m plan.Milestone, g *dag.Graph) MilestoneProjection {
 		Number:       m.Number,
 		Slug:         m.Slug,
 		Goal:         m.Goal,
+		Repo:         repoProjection(m.Repo),
 		Description:  m.Description,
 		Rules:        m.Rules,
 		Deliverables: deliverablesProjection(m.Deliverables),
@@ -163,4 +167,12 @@ func criteriaProjection(c plan.Criteria) Criteria {
 		Text:  c.Text,
 		Cases: cases,
 	}
+}
+
+// repoProjection cleans a set repo; an unset repo stays empty, not ".".
+func repoProjection(repo string) string {
+	if repo == "" {
+		return ""
+	}
+	return path.Clean(repo)
 }

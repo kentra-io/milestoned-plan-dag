@@ -38,10 +38,18 @@ Every milestone SHALL carry a verification `contract` with three fields:
 ### The plan declares a schema version
 A plan SHALL declare a `schemaVersion` using semantic versioning without a `v`
 prefix, so the format can evolve without silently breaking consumers. The
-current version is `0.4.0`; `validate` rejects any other, because a plan
+current version is `0.5.0`; `validate` rejects any other, because a plan
 written for 0.1.0 or 0.2.0 relied on implicit edges that no longer exist, and
-a plan written for an earlier version may carry milestone `steps`, which 0.4.0
-no longer has.
+a plan written for an earlier version may carry milestone `steps`, which 0.5.0
+no longer has. An older plan needs only a one-line `schemaVersion` edit.
+
+### A milestone may name its repository
+A milestone MAY carry `repo`: a path relative to the project root to the git
+repository it works in. Paths are compared after cleaning (`a`, `./a`, `a/` are
+one repository) and MAY start with `../`. If any milestone sets `repo`, every
+milestone MUST; a plan without `repo` is a single-repository plan. In a plan
+that sets `repo`, each milestone's `contract.paths` are relative to its own
+repository.
 
 ### Optional structured detail slots
 The schema reserves optional slots that let a plan carry file-specific detail
@@ -55,31 +63,34 @@ paths).
 
 `validate` runs JSON-Schema shape validation, then semantic validation. It
 rejects (non-zero exit, naming the offender):
-- a `schemaVersion` other than the current one (`0.4.0`);
+- a `schemaVersion` other than the current one (`0.5.0`);
 - a `depends-on` cycle (a valid plan always admits at least one topological order);
 - a `depends-on` entry referencing a slug no milestone defines (dangling edge);
 - two milestones sharing a `slug` or a `number` (duplicate identity);
+- an absolute `repo`;
+- `repo` set on some milestones but not all, naming the milestones without it;
 - a missing or malformed contract — a `check` that is neither a command nor the
   `none` sentinel, an empty `criteria`, or an absent `paths` key.
 
 It accepts `check: none` and `paths: []` as well-formed. It **warns** — not fails —
 when two milestones with no dependency path between them (potentially runnable
 concurrently by a future executor) declare overlapping `paths`, naming both
-milestones and the overlapping glob, while still exiting 0.
+milestones and the overlapping glob, while still exiting 0. In a plan that sets
+`repo`, only milestones of the same (cleaned) repository are compared.
 
 ## Capability: plan-projection (machine + human views)
 
 `resolve` reads a validated plan and emits a machine-readable **YAML** projection
 exposing, per milestone: `number`, `slug`, `goal`, `deliverables`, the full
-`contract` (`check` / `criteria` / `paths`), and
+`contract` (`check` / `criteria` / `paths`), `repo` (cleaned, when set), and
 `depends_on` edges. The `depends_on` edges are authoritative; the projection
 additionally carries a computed valid **topological order** for the current serial
 executor, deterministic with ties broken by `number` so the output is
 byte-reproducible across runs. YAML is the sole projection format — there is no
 `--format json` flag.
 
-`render` emits a read-only human markdown view (Goal / Deliverables / Validation
-contract) from the same model; nothing parses it back.
+`render` emits a read-only human markdown view (Goal / Repository, when set /
+Deliverables / Validation contract) from the same model; nothing parses it back.
 
 ## Non-goals
 
