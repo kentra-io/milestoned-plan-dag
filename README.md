@@ -30,6 +30,9 @@ A single static binary with three subcommands:
   (cycle / dangling-edge / duplicate / malformed-contract / wrong-schemaVersion
   rejection; a non-fatal overlapping-write-paths warning for independent
   milestones).
+- Format `schemaVersion` is `0.5.0`. An optional milestone `repo` (a path from
+  the project root to a git repository, all milestones or none) makes a
+  multi-repository plan: `paths` are then relative to the milestone's repository.
 - `resolve <plan.yaml>` — emit the machine-readable YAML projection: per-milestone
   data plus authoritative `depends_on` edges and a deterministic topological order.
 - `render <plan.yaml>` — emit a read-only human markdown view of the plan.
